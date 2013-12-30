@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -40,9 +41,12 @@ import twitter4j.auth.RequestToken;
 /* Please set your apps' callback URL to somewhere in your domain, like "http://(codename).apps.example.com/" */
 public class TwitterAuthService extends IntentService {
     public static final String ACTION_AUTH = "AUTH";
-    public static final String ACTION_AUTH_DONE = "AUTH_DONE";
+    public static final String ACTION_AUTH_VERIFY = "AUTH_VERIFY";
+    public static final String ACTION_AUTH_SUCCESS = "AUTH_SUCCESS";
+    public static final String ACTION_AUTH_FAIL = "AUTH_FAIL";
  
     public static final String EXTRA_VERIFIER = "verifier";
+    public static final String EXTRA_TOKEN = "token";
  
     public TwitterAuthService() {
         super("TwitterAuthService");
@@ -60,7 +64,7 @@ public class TwitterAuthService extends IntentService {
  
         if (ACTION_AUTH.equals(action)) {
             authenticate(tw);
-        } else if (ACTION_AUTH_DONE.equals(action)) {
+        } else if (ACTION_AUTH_VERIFY.equals(action)) {
             final String verifier = data.getStringExtra(EXTRA_VERIFIER);
             authenticateDone(tw, verifier);
         }
@@ -81,6 +85,10 @@ public class TwitterAuthService extends IntentService {
             }
         } else {
             Log.d("TAS", String.format("got access token: %s", accessToken.toString()));
+
+            final Intent intent = new Intent(ACTION_AUTH_SUCCESS);
+            intent.putExtra(EXTRA_TOKEN, accessToken);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
     }
  
@@ -89,8 +97,15 @@ public class TwitterAuthService extends IntentService {
             final AccessToken accessToken = tw.getOAuthAccessToken(verifier);
             Log.d("TAS", String.format("got access token: %s", accessToken.toString()));
             setAccessToken(accessToken);
+
+            final Intent intent = new Intent(ACTION_AUTH_SUCCESS);
+            intent.putExtra(EXTRA_TOKEN, accessToken);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         } catch (TwitterException e) {
             Log.e("TAS", "authentication failure", e);
+
+            final Intent intent = new Intent(ACTION_AUTH_FAIL);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
     }
  
@@ -138,7 +153,7 @@ public class TwitterAuthService extends IntentService {
                     if (m.find()) {
                         final String verifier = m.group(1);
                         final Intent verifyIntent = new Intent(AuthorizeActivity.this, TwitterAuthService.class);
-                        verifyIntent.setAction(TwitterAuthService.ACTION_AUTH_DONE);
+                        verifyIntent.setAction(TwitterAuthService.ACTION_AUTH_VERIFY);
                         verifyIntent.putExtra(TwitterAuthService.EXTRA_VERIFIER, verifier);
                         startService(verifyIntent);
                         finish();
