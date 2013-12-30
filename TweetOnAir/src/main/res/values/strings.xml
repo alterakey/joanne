@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TweetOnAir</string>
+    <string name="title_section1">Section 1</string>
+    <string name="action_settings">Settings</string>
+    <string name="consumer_key">XnNKSZ2LHPmb7yol1XuyHQ</string>
+    <string name="consumer_secret">bXE50Qk92QsaT3YiuE61ZT5GXcATgP56nMHMpcY71w</string>
+</resources>

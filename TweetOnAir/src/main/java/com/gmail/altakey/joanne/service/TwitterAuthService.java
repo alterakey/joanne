@@ -1,0 +1,155 @@
+/*
+ * Copyright 2013 Takahiro Yoshimura
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.gmail.altakey.joanne.service;
+
+import android.app.Activity;
+import android.app.IntentService;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import com.gmail.altakey.joanne.R;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.RequestToken;
+ 
+/* Please set your apps' callback URL to somewhere in your domain, like "http://(codename).apps.example.com/" */
+public class TwitterAuthService extends IntentService {
+    public static final String ACTION_AUTH = "AUTH";
+    public static final String ACTION_AUTH_DONE = "AUTH_DONE";
+ 
+    public static final String EXTRA_VERIFIER = "verifier";
+ 
+    public TwitterAuthService() {
+        super("TwitterAuthService");
+    }
+ 
+    @Override
+    public void onHandleIntent(Intent data) {
+        final Twitter tw = TwitterFactory.getSingleton();
+        try {
+            tw.setOAuthConsumer(getString(R.string.consumer_key), getString(R.string.consumer_secret));
+        } catch (IllegalStateException e) {
+        }
+ 
+        final String action = data.getAction();
+ 
+        if (ACTION_AUTH.equals(action)) {
+            authenticate(tw);
+        } else if (ACTION_AUTH_DONE.equals(action)) {
+            final String verifier = data.getStringExtra(EXTRA_VERIFIER);
+            authenticateDone(tw, verifier);
+        }
+        stopSelf();
+    }
+ 
+    private void authenticate(final Twitter tw) {
+        final AccessToken accessToken = getAccessToken();
+        if (accessToken == null) {
+            try {
+                final RequestToken req = tw.getOAuthRequestToken();
+                final Intent intent = new Intent(this, AuthorizeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setData(Uri.parse(req.getAuthorizationURL()));
+                startActivity(intent);
+            } catch (TwitterException e) {
+                Log.e("TAS", "authentication failure", e);
+            }
+        } else {
+            Log.d("TAS", String.format("got access token: %s", accessToken.toString()));
+        }
+    }
+ 
+    private void authenticateDone(final Twitter tw, final String verifier) {
+        try {
+            final AccessToken accessToken = tw.getOAuthAccessToken(verifier);
+            Log.d("TAS", String.format("got access token: %s", accessToken.toString()));
+            setAccessToken(accessToken);
+        } catch (TwitterException e) {
+            Log.e("TAS", "authentication failure", e);
+        }
+    }
+ 
+    public AccessToken getAccessToken() {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        final String token = prefs.getString("token", null);
+        final String tokenSecret = prefs.getString("token_secret", null);
+        if (token != null && tokenSecret != null) {
+            return new AccessToken(token, tokenSecret);
+        } else {
+            return null;
+        }
+    }
+ 
+    public void setAccessToken(final AccessToken token) {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs
+            .edit()
+            .putString("token", token.getToken())
+            .putString("token_secret", token.getTokenSecret())
+            .commit();
+    } 
+
+    public static class AuthorizeActivity extends Activity {
+        @Override
+        public void onCreate(final Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setTitle("Twitter authentication");
+ 
+            final Intent intent = getIntent();
+            final WebView view = new WebView(this);
+            view.setVerticalScrollBarEnabled(true);
+            view.setHorizontalScrollBarEnabled(false);
+            view.getSettings().setJavaScriptEnabled(true);
+            view.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
+            view.getSettings().setSupportMultipleWindows(false);
+            view.getSettings().setSaveFormData(false);
+            view.getSettings().setSavePassword(false);
+            view.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    final Pattern pat = Pattern.compile("\\?.*oauth_verifier=([a-zA-Z0-9]+)");
+                    final Matcher m = pat.matcher(url);
+                    Log.d("TAS", String.format("url: %s", url));
+                    if (m.find()) {
+                        final String verifier = m.group(1);
+                        final Intent verifyIntent = new Intent(AuthorizeActivity.this, TwitterAuthService.class);
+                        verifyIntent.setAction(TwitterAuthService.ACTION_AUTH_DONE);
+                        verifyIntent.putExtra(TwitterAuthService.EXTRA_VERIFIER, verifier);
+                        startService(verifyIntent);
+                        finish();
+                        return true;
+                    }
+                    view.loadUrl(url);
+                    return true;
+                }
+            });
+            view.loadUrl(intent.getData().toString());
+            setContentView(view);
+        }
+    }
+}
