@@ -1,15 +1,23 @@
 package com.gmail.altakey.joanne.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gmail.altakey.joanne.R;
-import com.gmail.altakey.joanne.activity.TweetDisplayActivity;
+import com.gmail.altakey.joanne.hack.ToastAnimationCanceler;
+import com.gmail.altakey.joanne.view.TweetView;
 
 import twitter4j.DirectMessage;
 import twitter4j.StallWarning;
@@ -30,6 +38,7 @@ public class TweetBroadcastService extends Service {
     public static final String EXTRA_TOKEN = TwitterAuthService.EXTRA_TOKEN;
 
     public static boolean sActive = false;
+    private static Handler sHandler = new Handler();
 
     private TwitterStream mStream;
 
@@ -92,13 +101,22 @@ public class TweetBroadcastService extends Service {
 
     private class StreamListener implements UserStreamListener {
         @Override
-        public void onStatus(Status status) {
-            final Intent intent = new Intent(TweetBroadcastService.this, TweetDisplayActivity.class);
-            intent.setAction(TweetDisplayActivity.ACTION_INCOMING);
-            intent.putExtra(TweetDisplayActivity.EXTRA_SCREEN_NAME, status.getUser().getScreenName());
-            intent.putExtra(TweetDisplayActivity.EXTRA_TEXT, status.getText());
-            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(intent);
+        public void onStatus(final Status status) {
+            sHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    final Context context = getApplicationContext();
+                    final TweetView content = new TweetView(context);
+                    content.setStatus(status);
+
+                    final Toast message = Toast.makeText(context, "", Toast.LENGTH_LONG);
+                    message.setView(content);
+                    message.setGravity(Gravity.TOP, 0, 0);
+                    message.setMargin(0.0f, 0.0f);
+                    new ToastAnimationCanceler(message).apply();
+                    message.show();
+                }
+            });
         }
 
         @Override
