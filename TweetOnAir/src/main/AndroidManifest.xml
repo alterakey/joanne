@@ -22,10 +22,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity.TweetDisplayActivity"
-            android:label="tweet_display"
-            android:theme="@style/AppTheme.Display" />
         <activity android:name=".service.TwitterAuthService$AuthorizeActivity" />
         <service android:name=".service.TwitterAuthService" />
         <service android:name=".service.TweetBroadcastService" />
