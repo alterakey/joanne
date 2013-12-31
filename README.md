@@ -25,4 +25,4 @@ Build with Android Studio 0.4.0+.
  * Power consumption might be high.
  * Tweet display might be broken in non-Nexus devices; please drop a note if you encounter.
  * Building requires Android Studio.
- 
+ * Absolutely no instructions.
