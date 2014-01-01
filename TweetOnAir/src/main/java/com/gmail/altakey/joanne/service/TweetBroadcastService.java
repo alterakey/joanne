@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Gravity;
@@ -110,30 +111,39 @@ public class TweetBroadcastService extends Service {
             return message;
         }
 
+        private boolean shouldDisplay() {
+            final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+            return pm.isScreenOn();
+        }
+
         @Override
         public void onStatus(final Status status) {
-            sHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    final Context context = getApplicationContext();
-                    final TweetView content = new TweetView(context);
-                    content.setStatus(status, mStream);
-                    buildDisplay(context, content).show();
-                }
-            });
+            if (shouldDisplay()) {
+                sHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        final Context context = getApplicationContext();
+                        final TweetView content = new TweetView(context);
+                        content.setStatus(status, mStream);
+                        buildDisplay(context, content).show();
+                    }
+                });
+            }
         }
 
         @Override
         public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
-            sHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    final Context context = getApplicationContext();
-                    final TweetView content = new TweetView(context);
-                    content.setDeletion();
-                    buildDisplay(context, content).show();
-                }
-            });
+            if (shouldDisplay()) {
+                sHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        final Context context = getApplicationContext();
+                        final TweetView content = new TweetView(context);
+                        content.setDeletion();
+                        buildDisplay(context, content).show();
+                    }
+                });
+            }
         }
 
         @Override
@@ -158,15 +168,17 @@ public class TweetBroadcastService extends Service {
 
         @Override
         public void onFavorite(User user, User user2, Status status) {
-            sHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    final Context context = getApplicationContext();
-                    final TweetView content = new TweetView(context);
-                    content.setFavorite();
-                    buildDisplay(context, content).show();
-                }
-            });
+            if (shouldDisplay()) {
+                sHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        final Context context = getApplicationContext();
+                        final TweetView content = new TweetView(context);
+                        content.setFavorite();
+                        buildDisplay(context, content).show();
+                    }
+                });
+            }
         }
 
         @Override
@@ -174,15 +186,17 @@ public class TweetBroadcastService extends Service {
 
         @Override
         public void onFollow(User source, User target) {
-            sHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    final Context context = getApplicationContext();
-                    final TweetView content = new TweetView(context);
-                    content.setFollow();
-                    buildDisplay(context, content).show();
-                }
-            });
+            if (shouldDisplay()) {
+                sHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        final Context context = getApplicationContext();
+                        final TweetView content = new TweetView(context);
+                        content.setFollow();
+                        buildDisplay(context, content).show();
+                    }
+                });
+            }
         }
 
         @Override
