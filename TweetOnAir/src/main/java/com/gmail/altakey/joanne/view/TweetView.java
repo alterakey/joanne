@@ -160,7 +160,7 @@ public class TweetView extends LinearLayout {
                 final Context context = mContextRef.get();
                 if (context != null) {
                     final SharedPreferences pref = context.getSharedPreferences(TwitterAuthService.PREFERENCE, Context.MODE_PRIVATE);
-                    sCachedMyScreenName = pref.getString(String.format("screen_name", token.getUserId()), null);
+                    sCachedMyScreenName = pref.getString("screen_name", null);
                 }
             }
             return sCachedMyScreenName;
