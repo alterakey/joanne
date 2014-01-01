@@ -23,6 +23,7 @@ import twitter4j.DirectMessage;
 import twitter4j.StallWarning;
 import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;
+import twitter4j.TwitterException;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.User;
@@ -100,6 +101,28 @@ public class TweetBroadcastService extends Service {
     }
 
     private class StreamListener implements UserStreamListener {
+        private boolean isMe(final User user) {
+            if (mStream != null) {
+                try {
+                    return user.getId() == mStream.getOAuthAccessToken().getUserId();
+                } catch (TwitterException e) {
+                    Log.e("SL", "got exception while testing user identity", e);
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        private Toast buildDisplay(final Context context, final TweetView content) {
+            final Toast message = Toast.makeText(context, "", Toast.LENGTH_LONG);
+            message.setView(content);
+            message.setGravity(Gravity.TOP, 0, 0);
+            message.setMargin(0.0f, 0.0f);
+            new ToastAnimationCanceler(message).apply();
+            return message;
+        }
+
         @Override
         public void onStatus(final Status status) {
             sHandler.post(new Runnable() {
@@ -108,19 +131,23 @@ public class TweetBroadcastService extends Service {
                     final Context context = getApplicationContext();
                     final TweetView content = new TweetView(context);
                     content.setStatus(status);
-
-                    final Toast message = Toast.makeText(context, "", Toast.LENGTH_LONG);
-                    message.setView(content);
-                    message.setGravity(Gravity.TOP, 0, 0);
-                    message.setMargin(0.0f, 0.0f);
-                    new ToastAnimationCanceler(message).apply();
-                    message.show();
+                    buildDisplay(context, content).show();
                 }
             });
         }
 
         @Override
-        public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) { }
+        public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
+            sHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    final Context context = getApplicationContext();
+                    final TweetView content = new TweetView(context);
+                    content.setDeletion();
+                    buildDisplay(context, content).show();
+                }
+            });
+        }
 
         @Override
         public void onTrackLimitationNotice(int i) { }
@@ -143,13 +170,33 @@ public class TweetBroadcastService extends Service {
         public void onFriendList(long[] longs) { }
 
         @Override
-        public void onFavorite(User user, User user2, Status status) { }
+        public void onFavorite(User user, User user2, Status status) {
+            sHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    final Context context = getApplicationContext();
+                    final TweetView content = new TweetView(context);
+                    content.setFavorite();
+                    buildDisplay(context, content).show();
+                }
+            });
+        }
 
         @Override
         public void onUnfavorite(User user, User user2, Status status) { }
 
         @Override
-        public void onFollow(User user, User user2) { }
+        public void onFollow(User source, User target) {
+            sHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    final Context context = getApplicationContext();
+                    final TweetView content = new TweetView(context);
+                    content.setFollow();
+                    buildDisplay(context, content).show();
+                }
+            });
+        }
 
         @Override
         public void onDirectMessage(DirectMessage directMessage) { }
