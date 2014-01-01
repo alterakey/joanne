@@ -101,19 +101,6 @@ public class TweetBroadcastService extends Service {
     }
 
     private class StreamListener implements UserStreamListener {
-        private boolean isMe(final User user) {
-            if (mStream != null) {
-                try {
-                    return user.getId() == mStream.getOAuthAccessToken().getUserId();
-                } catch (TwitterException e) {
-                    Log.e("SL", "got exception while testing user identity", e);
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        }
-
         private Toast buildDisplay(final Context context, final TweetView content) {
             final Toast message = Toast.makeText(context, "", Toast.LENGTH_LONG);
             message.setView(content);
@@ -130,7 +117,7 @@ public class TweetBroadcastService extends Service {
                 public void run() {
                     final Context context = getApplicationContext();
                     final TweetView content = new TweetView(context);
-                    content.setStatus(status);
+                    content.setStatus(status, mStream);
                     buildDisplay(context, content).show();
                 }
             });

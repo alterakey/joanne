@@ -47,7 +47,9 @@ public class TwitterAuthService extends IntentService {
  
     public static final String EXTRA_VERIFIER = "verifier";
     public static final String EXTRA_TOKEN = "token";
- 
+
+    public static final String PREFERENCE = "com.gmail.altakey.joanne";
+
     public TwitterAuthService() {
         super("TwitterAuthService");
     }
@@ -110,7 +112,7 @@ public class TwitterAuthService extends IntentService {
     }
  
     public AccessToken getAccessToken() {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences prefs = getSharedPreferences(PREFERENCE, MODE_PRIVATE);
         final String token = prefs.getString("token", null);
         final String tokenSecret = prefs.getString("token_secret", null);
         if (token != null && tokenSecret != null) {
@@ -121,11 +123,12 @@ public class TwitterAuthService extends IntentService {
     }
  
     public void setAccessToken(final AccessToken token) {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences prefs = getSharedPreferences(PREFERENCE, MODE_PRIVATE);
         prefs
             .edit()
             .putString("token", token.getToken())
             .putString("token_secret", token.getTokenSecret())
+            .putString("screen_name", token.getScreenName())
             .commit();
     } 
 
