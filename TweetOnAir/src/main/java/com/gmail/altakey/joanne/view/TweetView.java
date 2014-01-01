@@ -38,6 +38,14 @@ public class TweetView extends LinearLayout {
     private final static String FOLLOW_TEXT = "注意！敵にロックされている";
     private final static int FOLLOW_COLOR = COLOR_FRIEND;
 
+    private final static String BLOCKING_SCREENNAME = "Tracer 2";
+    private final static String BLOCKING_TEXT = "撃墜確認！いいぞ";
+    private final static int BLOCKING_COLOR = COLOR_FRIEND;
+
+    private final static String FOLLOWING_SCREENNAME = "AWACS";
+    private final static String FOLLOWING_TEXT = "レーダーロック";
+    private final static int FOLLOWING_COLOR = COLOR_NEUTRAL;
+
     private final static String DELETE_SCREENNAME = "AWACS";
     private final static String DELETE_TEXT = "消滅 消滅";
     private final static int DELETE_COLOR = COLOR_NEUTRAL;
@@ -103,10 +111,12 @@ public class TweetView extends LinearLayout {
         mScreenName.setTextColor(getScreenNameColor(target.getUser()));
     }
 
-    public void setFavorite() {
-        mScreenName.setText(FAVORITE_SCREENNAME);
-        mText.setText(formatText(FAVORITE_TEXT));
-        mScreenName.setTextColor(FAVORITE_COLOR);
+    public void setFavorite(final User source, final User target, final TwitterStream stream) {
+        if (isMe(target, stream)) {
+            mScreenName.setText(FAVORITE_SCREENNAME);
+            mText.setText(formatText(FAVORITE_TEXT));
+            mScreenName.setTextColor(FAVORITE_COLOR);
+        }
     }
 
     public void setRetweet() {
@@ -127,10 +137,24 @@ public class TweetView extends LinearLayout {
         mScreenName.setTextColor(DELETE_COLOR);
     }
 
-    public void setFollow() {
-        mScreenName.setText(FOLLOW_SCREENNAME);
-        mText.setText(formatText(FOLLOW_TEXT));
-        mScreenName.setTextColor(FOLLOW_COLOR);
+    public void setFollow(final User source, final User target, final TwitterStream stream) {
+        if (isMe(source, stream)) {
+            mScreenName.setText(FOLLOWING_SCREENNAME);
+            mText.setText(formatText(FOLLOWING_TEXT));
+            mScreenName.setTextColor(FOLLOWING_COLOR);
+        } else if (isMe(target, stream)) {
+            mScreenName.setText(FOLLOW_SCREENNAME);
+            mText.setText(formatText(FOLLOW_TEXT));
+            mScreenName.setTextColor(FOLLOW_COLOR);
+        }
+    }
+
+    public void setBlock(final User source, final User target, final TwitterStream stream) {
+        if (isMe(source, stream)) {
+            mScreenName.setText(BLOCKING_SCREENNAME);
+            mText.setText(formatText(BLOCKING_TEXT));
+            mScreenName.setTextColor(BLOCKING_COLOR);
+        }
     }
 
     private static String formatText(final String text) {

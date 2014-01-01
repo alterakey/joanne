@@ -167,14 +167,14 @@ public class TweetBroadcastService extends Service {
         public void onFriendList(long[] longs) { }
 
         @Override
-        public void onFavorite(User user, User user2, Status status) {
+        public void onFavorite(final User source, final User target, Status status) {
             if (shouldDisplay()) {
                 sHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         final Context context = getApplicationContext();
                         final TweetView content = new TweetView(context);
-                        content.setFavorite();
+                        content.setFavorite(source, target, mStream);
                         buildDisplay(context, content).show();
                     }
                 });
@@ -185,14 +185,14 @@ public class TweetBroadcastService extends Service {
         public void onUnfavorite(User user, User user2, Status status) { }
 
         @Override
-        public void onFollow(User source, User target) {
+        public void onFollow(final User source, final User target) {
             if (shouldDisplay()) {
                 sHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         final Context context = getApplicationContext();
                         final TweetView content = new TweetView(context);
-                        content.setFollow();
+                        content.setFollow(source, target, mStream);
                         buildDisplay(context, content).show();
                     }
                 });
@@ -227,7 +227,19 @@ public class TweetBroadcastService extends Service {
         public void onUserProfileUpdate(User user) { }
 
         @Override
-        public void onBlock(User user, User user2) { }
+        public void onBlock(final User source, final User target) {
+            if (shouldDisplay()) {
+                sHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        final Context context = getApplicationContext();
+                        final TweetView content = new TweetView(context);
+                        content.setBlock(source, target, mStream);
+                        buildDisplay(context, content).show();
+                    }
+                });
+            }
+        }
 
         @Override
         public void onUnblock(User user, User user2) { }
