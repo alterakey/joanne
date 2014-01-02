@@ -181,7 +181,11 @@ public class TweetView extends LinearLayout {
     }
 
     private int getScreenNameColor(final User user, final TwitterStream stream) {
-        if (new UserRelation(stream).isFriend(mContextRef.get(), user)) {
+        final UserRelation relation = new UserRelation(stream);
+
+        if (relation.isMe(user)) {
+            return COLOR_BUDDY;
+        } else if (relation.isFriend(mContextRef.get(), user)) {
             return COLOR_FRIEND;
         } else {
             return COLOR_NEUTRAL;
