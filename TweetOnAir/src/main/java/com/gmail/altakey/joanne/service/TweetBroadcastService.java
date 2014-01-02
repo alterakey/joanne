@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.hack.ToastAnimationCanceler;
+import com.gmail.altakey.joanne.view.TweetDisplayBuilder;
 import com.gmail.altakey.joanne.view.TweetView;
 
 import twitter4j.DirectMessage;
@@ -102,14 +103,6 @@ public class TweetBroadcastService extends Service {
     }
 
     private class StreamListener implements UserStreamListener {
-        private Toast buildDisplay(final Context context, final TweetView content) {
-            final Toast message = Toast.makeText(context, "", Toast.LENGTH_LONG);
-            message.setView(content);
-            message.setGravity(Gravity.TOP, 0, 0);
-            message.setMargin(0.0f, 0.0f);
-            new ToastAnimationCanceler(message).apply();
-            return message;
-        }
 
         private boolean shouldDisplay() {
             final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
@@ -122,10 +115,7 @@ public class TweetBroadcastService extends Service {
                 sHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        final Context context = getApplicationContext();
-                        final TweetView content = new TweetView(context);
-                        content.setStatus(status, mStream);
-                        buildDisplay(context, content).show();
+                        new TweetDisplayBuilder(getApplicationContext(), mStream).status(status).show();
                     }
                 });
             }
@@ -137,10 +127,7 @@ public class TweetBroadcastService extends Service {
                 sHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        final Context context = getApplicationContext();
-                        final TweetView content = new TweetView(context);
-                        content.setDeletion();
-                        buildDisplay(context, content).show();
+                        new TweetDisplayBuilder(getApplicationContext(), mStream).deletion().show();
                     }
                 });
             }
@@ -172,10 +159,7 @@ public class TweetBroadcastService extends Service {
                 sHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        final Context context = getApplicationContext();
-                        final TweetView content = new TweetView(context);
-                        content.setFavorite(source, target, mStream);
-                        buildDisplay(context, content).show();
+                        new TweetDisplayBuilder(getApplicationContext(), mStream).favorite(source, target).show();
                     }
                 });
             }
@@ -190,10 +174,7 @@ public class TweetBroadcastService extends Service {
                 sHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        final Context context = getApplicationContext();
-                        final TweetView content = new TweetView(context);
-                        content.setFollow(source, target, mStream);
-                        buildDisplay(context, content).show();
+                        new TweetDisplayBuilder(getApplicationContext(), mStream).follow(source, target).show();
                     }
                 });
             }
@@ -237,10 +218,7 @@ public class TweetBroadcastService extends Service {
                 sHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        final Context context = getApplicationContext();
-                        final TweetView content = new TweetView(context);
-                        content.setBlock(source, target, mStream);
-                        buildDisplay(context, content).show();
+                        new TweetDisplayBuilder(getApplicationContext(), mStream).block(source, target).show();
                     }
                 });
             }
