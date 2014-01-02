@@ -202,10 +202,28 @@ public class TweetBroadcastService extends Service {
         public void onDirectMessage(DirectMessage directMessage) { }
 
         @Override
-        public void onUserListMemberAddition(User user, User user2, UserList userList) { }
+        public void onUserListMemberAddition(final User addedMember, final User listOwner, UserList userList) {
+            if (shouldDisplay()) {
+                sHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        new TweetDisplayBuilder(getApplicationContext(), mStream).listed(listOwner, addedMember).show();
+                    }
+                });
+            }
+        }
 
         @Override
-        public void onUserListMemberDeletion(User user, User user2, UserList userList) { }
+        public void onUserListMemberDeletion(final User deletedMember, final User listOwner, UserList userList) {
+            if (shouldDisplay()) {
+                sHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        new TweetDisplayBuilder(getApplicationContext(), mStream).unlisted(listOwner, deletedMember).show();
+                    }
+                });
+            }        
+        }
 
         @Override
         public void onUserListSubscription(User user, User user2, UserList userList) { }

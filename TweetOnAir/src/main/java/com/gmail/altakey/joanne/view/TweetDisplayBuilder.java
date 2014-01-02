@@ -49,6 +49,18 @@ public class TweetDisplayBuilder {
         return on(content);
     }
 
+    public Toast listed(final User source, final User target) {
+        final TweetView content = new TweetView(mContext);
+        content.setListed(source, target, mStream);
+        return on(content);
+    }
+
+    public Toast unlisted(final User source, final User target) {
+        final TweetView content = new TweetView(mContext);
+        content.setUnlisted(source, target, mStream);
+        return on(content);
+    }
+
     public Toast on(final TweetView content) {
         final Toast message = Toast.makeText(mContext, "", Toast.LENGTH_LONG);
         message.setView(content);

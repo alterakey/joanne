@@ -32,6 +32,14 @@ public class TweetView extends LinearLayout {
     private final static String FOLLOW_TEXT = "注意！敵にロックされている";
     private final static int FOLLOW_COLOR = COLOR_BUDDY;
 
+    private final static String LISTED_SCREENNAME = "Tracer 2";
+    private final static String LISTED_TEXT = "注意！レーダー照射を受けている";
+    private final static int LISTED_COLOR = COLOR_BUDDY;
+
+    private final static String UNLISTED_SCREENNAME = "AWACS";
+    private final static String UNLISTED_TEXT = "トレーサー1 レーダーを回避";
+    private final static int UNLISTED_COLOR = COLOR_FRIEND;
+
     private final static String BLOCKING_SCREENNAME = "Tracer 2";
     private final static String BLOCKING_TEXT = "撃墜確認！いいぞ";
     private final static int BLOCKING_COLOR = COLOR_BUDDY;
@@ -152,6 +160,22 @@ public class TweetView extends LinearLayout {
         }
     }
 
+    public void setListed(final User source, final User target, final TwitterStream stream) {
+        if (new UserRelation(stream).isMe(target)) {
+            mScreenName.setText(LISTED_SCREENNAME);
+            mText.setText(formatText(LISTED_TEXT));
+            mScreenName.setTextColor(LISTED_COLOR);
+        }
+    }
+
+    public void setUnlisted(final User source, final User target, final TwitterStream stream) {
+        if (new UserRelation(stream).isMe(target)) {
+            mScreenName.setText(UNLISTED_SCREENNAME);
+            mText.setText(formatText(UNLISTED_TEXT));
+            mScreenName.setTextColor(UNLISTED_COLOR);
+        }
+    }
+
     private static String formatText(final String text) {
         return String.format("<< %s >>", text);
     }
@@ -163,4 +187,5 @@ public class TweetView extends LinearLayout {
             return COLOR_NEUTRAL;
         }
     }
+
 }
