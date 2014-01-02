@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.webkit.WebView;
@@ -36,7 +35,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import twitter4j.CursorSupport;
 import twitter4j.IDs;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
