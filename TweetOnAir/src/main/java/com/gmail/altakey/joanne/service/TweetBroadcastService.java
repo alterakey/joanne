@@ -10,16 +10,9 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.gmail.altakey.joanne.R;
-import com.gmail.altakey.joanne.hack.ToastAnimationCanceler;
 import com.gmail.altakey.joanne.view.TweetDisplayBuilder;
-import com.gmail.altakey.joanne.view.TweetView;
 
 import twitter4j.DirectMessage;
 import twitter4j.StallWarning;

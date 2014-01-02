@@ -1,28 +1,18 @@
 package com.gmail.altakey.joanne.view;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.gmail.altakey.joanne.R;
-import com.gmail.altakey.joanne.service.TwitterAuthService;
 import com.gmail.altakey.joanne.util.UserRelation;
 
 import java.lang.ref.WeakReference;
-import java.util.Set;
 
 import twitter4j.Status;
-import twitter4j.StatusStream;
-import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
 import twitter4j.TwitterStream;
 import twitter4j.User;
-import twitter4j.UserStream;
-import twitter4j.auth.AccessToken;
 
 public class TweetView extends LinearLayout {
     private final static int COLOR_BUDDY = 0xff00ff00;
