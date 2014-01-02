@@ -109,8 +109,6 @@ public class MainActivity extends ActionBarActivity {
                     c.startService(serviceLaunchIntent);
                 } else if (TwitterAuthService.ACTION_AUTH_FAIL.equals(action)) {
                     Toast.makeText(c, "Authentication failure", Toast.LENGTH_LONG).show();
-                } else if (TweetBroadcastService.ACTION_STATE_CHANGING.equals(action)) {
-                    showProcessingDialog();
                 } else if (TweetBroadcastService.ACTION_STATE_CHANGED.equals(action)) {
                     hideProcessingDialog();
                     updateTitle(getView());
@@ -136,6 +134,7 @@ public class MainActivity extends ActionBarActivity {
                 public void onClick(final View view) {
                     final Context c = getActivity();
                     if (c != null) {
+                        showProcessingDialog();
                         if (TweetBroadcastService.sActive) {
                             c.stopService(new Intent(c, TweetBroadcastService.class));
                         } else {
@@ -164,7 +163,6 @@ public class MainActivity extends ActionBarActivity {
             final IntentFilter filter = new IntentFilter();
             filter.addAction(TwitterAuthService.ACTION_AUTH_SUCCESS);
             filter.addAction(TwitterAuthService.ACTION_AUTH_FAIL);
-            filter.addAction(TweetBroadcastService.ACTION_STATE_CHANGING);
             filter.addAction(TweetBroadcastService.ACTION_STATE_CHANGED);
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mReceiver, filter);
 
