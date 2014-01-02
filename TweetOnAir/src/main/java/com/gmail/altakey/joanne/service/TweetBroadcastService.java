@@ -111,6 +111,13 @@ public class TweetBroadcastService extends Service {
             mStream = new TwitterStreamFactory(builder.build()).getInstance(accessToken);
             mStream.addListener(new StreamListener());
             mStream.user();
+
+            sHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    new TweetDisplayBuilder(getApplicationContext(), mStream).ready().show();
+                }
+            });
         }
         return START_STICKY;
     }
@@ -158,6 +165,14 @@ public class TweetBroadcastService extends Service {
         @Override
         public void onException(Exception e) {
             Log.w("SL", "got exception while tracing up stream", e);
+            if (shouldDisplay()) {
+                sHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        new TweetDisplayBuilder(getApplicationContext(), mStream).error().show();
+                    }
+                });
+            }
         }
 
         @Override

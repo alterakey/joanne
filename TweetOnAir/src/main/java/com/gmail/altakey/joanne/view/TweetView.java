@@ -41,6 +41,14 @@ public class TweetView extends LinearLayout {
     private final static String UNLISTED_TEXT = "トレーサー1 レーダーを回避";
     private final static int UNLISTED_COLOR = COLOR_FRIEND;
 
+    private final static String READY_SCREENNAME = "AWACS";
+    private final static String READY_TEXT = "全機 聞こえるか？";
+    private final static int READY_COLOR = COLOR_FRIEND;
+
+    private final static String ERROR_SCREENNAME = "Tracer 2";
+    private final static String ERROR_TEXT = "無線不調 無線不調…";
+    private final static int ERROR_COLOR = COLOR_BUDDY;
+
     private final static String BLOCKING_SCREENNAME = "Tracer 2";
     private final static String BLOCKING_TEXT = "撃墜確認！いいぞ";
     private final static int BLOCKING_COLOR = COLOR_BUDDY;
@@ -180,6 +188,18 @@ public class TweetView extends LinearLayout {
             mText.setText(formatText(UNLISTED_TEXT));
             mScreenName.setTextColor(UNLISTED_COLOR);
         }
+    }
+    
+    public void setReady() {
+        mScreenName.setText(READY_SCREENNAME);
+        mText.setText(formatText(READY_TEXT));
+        mScreenName.setTextColor(READY_COLOR);
+    }
+
+    public void setError() {
+        mScreenName.setText(ERROR_SCREENNAME);
+        mText.setText(formatText(ERROR_TEXT));
+        mScreenName.setTextColor(ERROR_COLOR);
     }
 
     private static String formatText(final String text) {

@@ -61,6 +61,18 @@ public class TweetDisplayBuilder {
         return on(content);
     }
 
+    public Toast ready() {
+        final TweetView content = new TweetView(mContext);
+        content.setReady();
+        return on(content);
+    }
+
+    public Toast error() {
+        final TweetView content = new TweetView(mContext);
+        content.setError();
+        return on(content);
+    }
+
     public Toast on(final TweetView content) {
         final Toast message = Toast.makeText(mContext, "", Toast.LENGTH_LONG);
         message.setView(content);
