@@ -17,6 +17,7 @@ package com.gmail.altakey.joanne.service;
 
 import android.app.Activity;
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -28,10 +29,15 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.gmail.altakey.joanne.R;
+import com.gmail.altakey.joanne.util.UserRelation;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import twitter4j.CursorSupport;
+import twitter4j.IDs;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -87,6 +93,7 @@ public class TwitterAuthService extends IntentService {
             }
         } else {
             Log.d("TAS", String.format("got access token: %s", accessToken.toString()));
+            updateFriendsList(this, accessToken);
 
             final Intent intent = new Intent(ACTION_AUTH_SUCCESS);
             intent.putExtra(EXTRA_TOKEN, accessToken);
@@ -99,6 +106,7 @@ public class TwitterAuthService extends IntentService {
             final AccessToken accessToken = tw.getOAuthAccessToken(verifier);
             Log.d("TAS", String.format("got access token: %s", accessToken.toString()));
             setAccessToken(accessToken);
+            updateFriendsList(this, accessToken);
 
             final Intent intent = new Intent(ACTION_AUTH_SUCCESS);
             intent.putExtra(EXTRA_TOKEN, accessToken);
@@ -130,7 +138,34 @@ public class TwitterAuthService extends IntentService {
             .putString("token_secret", token.getTokenSecret())
             .putString("screen_name", token.getScreenName())
             .commit();
-    } 
+    }
+
+    public static void updateFriendsList(final Context context, final AccessToken token) {
+        final SharedPreferences prefs = context.getSharedPreferences(PREFERENCE, MODE_PRIVATE);
+        try {
+            final Twitter twitter = TwitterFactory.getSingleton();
+            twitter.setOAuthAccessToken(token);
+            final Set<String> set = new HashSet<String>();
+
+            for (IDs ids = twitter.getFriendsIDs(-1); ; ids = twitter.getFriendsIDs(ids.getNextCursor())) {
+                for (Long id : ids.getIDs()) {
+                    set.add(String.valueOf(id));
+                }
+                if (!ids.hasNext()) {
+                    break;
+                }
+            }
+
+            prefs
+                .edit()
+                .putStringSet("friends", set)
+                .commit();
+            UserRelation.notifyFriendsChanged();
+            Log.d("TAS", String.format("got %d friends", set.size()));
+        } catch (TwitterException e) {
+            Log.w("TAS", "cannot get follower list", e);
+        }
+    }
 
     public static class AuthorizeActivity extends Activity {
         @Override

@@ -197,6 +197,11 @@ public class TweetBroadcastService extends Service {
                     }
                 });
             }
+            try {
+                TwitterAuthService.updateFriendsList(TweetBroadcastService.this, mStream.getOAuthAccessToken());
+            } catch (TwitterException e) {
+                Log.w("TBS", "cannot update friends list", e);
+            }
         }
 
         @Override

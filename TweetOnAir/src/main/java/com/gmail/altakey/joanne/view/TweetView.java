@@ -10,25 +10,29 @@ import android.widget.TextView;
 
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.service.TwitterAuthService;
+import com.gmail.altakey.joanne.util.UserRelation;
 
 import java.lang.ref.WeakReference;
+import java.util.Set;
 
 import twitter4j.Status;
 import twitter4j.StatusStream;
 import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
 import twitter4j.TwitterStream;
 import twitter4j.User;
 import twitter4j.UserStream;
 import twitter4j.auth.AccessToken;
 
 public class TweetView extends LinearLayout {
-    private final static int COLOR_FRIEND = 0xff00ff00;
+    private final static int COLOR_BUDDY = 0xff00ff00;
     private final static int COLOR_FOE = 0xffff0000;
-    private final static int COLOR_NEUTRAL = 0xff8888ff;
+    private final static int COLOR_FRIEND = 0xff8888ff;
+    private final static int COLOR_NEUTRAL = 0xffff8800;
 
     private final static String FAVORITE_SCREENNAME = "Tracer 2";
     private final static String FAVORITE_TEXT = "favったか";
-    private final static int FAVORITE_COLOR = COLOR_FRIEND;
+    private final static int FAVORITE_COLOR = COLOR_BUDDY;
 
     private final static String RETWEET_SCREENNAME = "Tracer 2";
     private final static String RETWEET_TEXT = "注意！拡散されているぞ";
@@ -36,11 +40,11 @@ public class TweetView extends LinearLayout {
 
     private final static String FOLLOW_SCREENNAME = "Tracer 2";
     private final static String FOLLOW_TEXT = "注意！敵にロックされている";
-    private final static int FOLLOW_COLOR = COLOR_FRIEND;
+    private final static int FOLLOW_COLOR = COLOR_BUDDY;
 
     private final static String BLOCKING_SCREENNAME = "Tracer 2";
     private final static String BLOCKING_TEXT = "撃墜確認！いいぞ";
-    private final static int BLOCKING_COLOR = COLOR_FRIEND;
+    private final static int BLOCKING_COLOR = COLOR_BUDDY;
 
     private final static String FOLLOWING_SCREENNAME = "AWACS";
     private final static String FOLLOWING_TEXT = "レーダーロック";
@@ -54,9 +58,7 @@ public class TweetView extends LinearLayout {
     private final static String RETWEETING_TEXT = "拡散 拡散";
     private final static int RETWEETING_COLOR = COLOR_NEUTRAL;
 
-    private final static int MENTION_COLOR = COLOR_FRIEND;
-
-    private static String sCachedMyScreenName;
+    private final static int MENTION_COLOR = COLOR_BUDDY;
 
     private TextView mScreenName;
     private TextView mText;
@@ -86,18 +88,19 @@ public class TweetView extends LinearLayout {
 
     public void setStatus(final Status status, final TwitterStream stream) {
         Status target = status;
+        final UserRelation relation = new UserRelation(stream);
 
         if (status.isRetweet()) {
             target = status.getRetweetedStatus();
-            if (isMe(target.getUser(), stream)) {
+            if (relation.isMe(target.getUser())) {
                 setRetweet();
                 return;
-            } else if (isMe(status.getUser(), stream)) {
+            } else if (relation.isMe(status.getUser())) {
                 setRetweeting();
                 return;
             }
         } else {
-            final String myScreenName = getMyScreenName(stream);
+            final String myScreenName = relation.getMyScreenName(mContextRef.get());
             if (myScreenName != null) {
                 if (status.getText().contains(String.format("@%s", myScreenName))) {
                     mText.setTextColor(MENTION_COLOR);
@@ -108,11 +111,11 @@ public class TweetView extends LinearLayout {
         mScreenName.setText(target.getUser().getScreenName());
         mText.setText(formatText(target.getText()));
 
-        mScreenName.setTextColor(getScreenNameColor(target.getUser()));
+        mScreenName.setTextColor(getScreenNameColor(target.getUser(), stream));
     }
 
     public void setFavorite(final User source, final User target, final TwitterStream stream) {
-        if (isMe(target, stream)) {
+        if (new UserRelation(stream).isMe(target)) {
             mScreenName.setText(FAVORITE_SCREENNAME);
             mText.setText(formatText(FAVORITE_TEXT));
             mScreenName.setTextColor(FAVORITE_COLOR);
@@ -138,11 +141,13 @@ public class TweetView extends LinearLayout {
     }
 
     public void setFollow(final User source, final User target, final TwitterStream stream) {
-        if (isMe(source, stream)) {
+        final UserRelation relation = new UserRelation(stream);
+
+        if (relation.isMe(source)) {
             mScreenName.setText(FOLLOWING_SCREENNAME);
             mText.setText(formatText(FOLLOWING_TEXT));
             mScreenName.setTextColor(FOLLOWING_COLOR);
-        } else if (isMe(target, stream)) {
+        } else if (relation.isMe(target)) {
             mScreenName.setText(FOLLOW_SCREENNAME);
             mText.setText(formatText(FOLLOW_TEXT));
             mScreenName.setTextColor(FOLLOW_COLOR);
@@ -150,7 +155,7 @@ public class TweetView extends LinearLayout {
     }
 
     public void setBlock(final User source, final User target, final TwitterStream stream) {
-        if (isMe(source, stream)) {
+        if (new UserRelation(stream).isMe(source)) {
             mScreenName.setText(BLOCKING_SCREENNAME);
             mText.setText(formatText(BLOCKING_TEXT));
             mScreenName.setTextColor(BLOCKING_COLOR);
@@ -161,40 +166,11 @@ public class TweetView extends LinearLayout {
         return String.format("<< %s >>", text);
     }
 
-    private static boolean isMe(final User user, final TwitterStream stream) {
-        if (user != null) {
-            try {
-                return user.getId() == stream.getOAuthAccessToken().getUserId();
-            } catch (TwitterException e) {
-                Log.e("SL", "got exception while testing user identity", e);
-                return false;
-            }
+    private int getScreenNameColor(final User user, final TwitterStream stream) {
+        if (new UserRelation(stream).isFriend(mContextRef.get(), user)) {
+            return COLOR_FRIEND;
         } else {
-            return false;
+            return COLOR_NEUTRAL;
         }
-    }
-
-    private String getMyScreenName(final TwitterStream stream) {
-        try {
-            final AccessToken token = stream.getOAuthAccessToken();
-            String screenName = token.getScreenName();
-            if (screenName != null) {
-                return screenName;
-            } else if (sCachedMyScreenName == null) {
-                final Context context = mContextRef.get();
-                if (context != null) {
-                    final SharedPreferences pref = context.getSharedPreferences(TwitterAuthService.PREFERENCE, Context.MODE_PRIVATE);
-                    sCachedMyScreenName = pref.getString("screen_name", null);
-                }
-            }
-            return sCachedMyScreenName;
-        } catch (TwitterException e) {
-            Log.e("SL", "got exception while testing user identity", e);
-            return null;
-        }
-    }
-
-    private static int getScreenNameColor(final User user) {
-        return COLOR_NEUTRAL;
     }
 }
