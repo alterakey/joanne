@@ -28,6 +28,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.gmail.altakey.joanne.R;
+import com.gmail.altakey.joanne.util.IdListCoder;
 import com.gmail.altakey.joanne.util.UserRelation;
 
 import java.util.HashSet;
@@ -143,11 +144,11 @@ public class TwitterAuthService extends IntentService {
         try {
             final Twitter twitter = TwitterFactory.getSingleton();
             twitter.setOAuthAccessToken(token);
-            final Set<String> set = new HashSet<String>();
+            final Set<Long> set = new HashSet<Long>();
 
             for (IDs ids = twitter.getFriendsIDs(-1); ; ids = twitter.getFriendsIDs(ids.getNextCursor())) {
                 for (Long id : ids.getIDs()) {
-                    set.add(String.valueOf(id));
+                    set.add(id);
                 }
                 if (!ids.hasNext()) {
                     break;
@@ -156,7 +157,7 @@ public class TwitterAuthService extends IntentService {
 
             prefs
                 .edit()
-                .putStringSet("friends", set)
+                .putString("friends", new IdListCoder().encode(set))
                 .commit();
             UserRelation.notifyFriendsChanged();
             Log.d("TAS", String.format("got %d friends", set.size()));

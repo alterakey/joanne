@@ -60,16 +60,8 @@ public class UserRelation {
     public boolean isFriend(final Context context, final User user) {
         synchronized (sLock) {
             if (sCachedFriends == null) {
-                final Set<Long> hydrated = new HashSet<Long>();
                 final SharedPreferences pref = context.getSharedPreferences(TwitterAuthService.PREFERENCE, Context.MODE_PRIVATE);
-                for (String id : pref.getStringSet("friends", new HashSet<String>())) {
-                    try {
-                        hydrated.add(Long.valueOf(id));
-                    } catch (NumberFormatException e) {
-
-                    }
-                }
-                sCachedFriends = hydrated;
+                sCachedFriends = new IdListCoder().decode(pref.getString("friends", ""));
             }
             return sCachedFriends.contains(user.getId());
         }
@@ -84,4 +76,5 @@ public class UserRelation {
     private AccessToken getToken() throws TwitterException {
         return mStream.getOAuthAccessToken();
     }
+
 }
