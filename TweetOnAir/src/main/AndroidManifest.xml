@@ -7,6 +7,7 @@
     <uses-sdk
         android:minSdkVersion="10"
         android:targetSdkVersion="19" />
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -15,15 +16,23 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".activity.MainActivity"
+            android:name="com.gmail.altakey.joanne.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".service.TwitterAuthService$AuthorizeActivity" />
-        <service android:name=".service.TwitterAuthService" />
-        <service android:name=".service.TweetBroadcastService" />
+        <activity android:name="com.gmail.altakey.joanne.service.TwitterAuthService$AuthorizeActivity" />
+
+        <service android:name="com.gmail.altakey.joanne.service.TwitterAuthService" />
+        <service android:name="com.gmail.altakey.joanne.service.TweetBroadcastService" />
+
+        <activity
+            android:name="com.gmail.altakey.joanne.activity.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
     </application>
+
 </manifest>
