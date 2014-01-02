@@ -108,9 +108,10 @@ public class MainActivity extends ActionBarActivity {
                     serviceLaunchIntent.putExtra(TweetBroadcastService.EXTRA_TOKEN, intent.getSerializableExtra(TwitterAuthService.EXTRA_TOKEN));
                     c.startService(serviceLaunchIntent);
                 } else if (TwitterAuthService.ACTION_AUTH_FAIL.equals(action)) {
-                    Toast.makeText(c, "Authentication failure", Toast.LENGTH_LONG).show();
                     hideProcessingDialog();
+                    Toast.makeText(c, "Authentication failure", Toast.LENGTH_LONG).show();
                 } else if (TweetBroadcastService.ACTION_STATE_CHANGED.equals(action)) {
+                    hideProcessingDialog();
                     updateTitle(getView());
                 }
             }
