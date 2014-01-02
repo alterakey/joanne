@@ -26,7 +26,7 @@ public class TweetView extends LinearLayout {
 
     private final static String RETWEET_SCREENNAME = "Tracer 2";
     private final static String RETWEET_TEXT = "注意！拡散されているぞ";
-    private final static int RETWEET_COLOR = COLOR_FRIEND;
+    private final static int RETWEET_COLOR = COLOR_BUDDY;
 
     private final static String FOLLOW_SCREENNAME = "Tracer 2";
     private final static String FOLLOW_TEXT = "注意！敵にロックされている";
@@ -38,15 +38,15 @@ public class TweetView extends LinearLayout {
 
     private final static String FOLLOWING_SCREENNAME = "AWACS";
     private final static String FOLLOWING_TEXT = "レーダーロック";
-    private final static int FOLLOWING_COLOR = COLOR_NEUTRAL;
+    private final static int FOLLOWING_COLOR = COLOR_FRIEND;
 
     private final static String DELETE_SCREENNAME = "AWACS";
     private final static String DELETE_TEXT = "消滅 消滅";
-    private final static int DELETE_COLOR = COLOR_NEUTRAL;
+    private final static int DELETE_COLOR = COLOR_FRIEND;
 
     private final static String RETWEETING_SCREENNAME = "AWACS";
     private final static String RETWEETING_TEXT = "拡散 拡散";
-    private final static int RETWEETING_COLOR = COLOR_NEUTRAL;
+    private final static int RETWEETING_COLOR = COLOR_FRIEND;
 
     private final static int MENTION_COLOR = COLOR_BUDDY;
 
