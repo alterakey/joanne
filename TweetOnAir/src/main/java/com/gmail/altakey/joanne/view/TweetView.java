@@ -2,6 +2,7 @@ package com.gmail.altakey.joanne.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -57,6 +58,8 @@ public class TweetView extends LinearLayout {
     private final static int RETWEETING_COLOR = COLOR_FRIEND;
 
     private final static int MENTION_COLOR = COLOR_BUDDY;
+    private final static int SCREENNAME_SIZE = 14;
+    private final static int TEXT_SIZE = 16;
 
     private TextView mScreenName;
     private TextView mText;
@@ -82,6 +85,9 @@ public class TweetView extends LinearLayout {
         mScreenName = (TextView)findViewById(R.id.screen_name);
         mText = (TextView)findViewById(R.id.text);
         mContextRef = new WeakReference<Context>(context);
+
+        mScreenName.setTextSize(TypedValue.COMPLEX_UNIT_SP, SCREENNAME_SIZE);
+        mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, TEXT_SIZE);
     }
 
     public void setStatus(final Status status, final TwitterStream stream) {
