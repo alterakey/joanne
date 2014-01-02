@@ -102,7 +102,6 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onReceive(final Context c, final Intent intent) {
                 final String action = intent.getAction();
-                final FragmentActivity activity = getActivity();
                 if (TwitterAuthService.ACTION_AUTH_SUCCESS.equals(action)) {
                     final Intent serviceLaunchIntent = new Intent(c, TweetBroadcastService.class);
                     serviceLaunchIntent.putExtra(TweetBroadcastService.EXTRA_TOKEN, intent.getSerializableExtra(TwitterAuthService.EXTRA_TOKEN));
