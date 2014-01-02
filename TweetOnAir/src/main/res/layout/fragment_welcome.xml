@@ -4,21 +4,49 @@
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <View
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="2" />
+        android:layout_weight="2"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="某防空無線風にタイムラインを追うことができるジョークTwitterクライアントです。" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14sp"
+            android:text="流れてくるツイートやfav/RT/フォロー/リスト追加削除などのイベントがリアルタイムで画面上部にHUD的な形で表示されて行くので、なにかをしながら適当にタイムラインをチェックするのには良いかもしれません。" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14sp"
+            android:text="※これ単体でツイートやfav/RTなどを行なうことはできませんので、その辺は適当に別のクライアントを併用してお使いください。" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14sp"
+            android:text="基本的な使い方" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14sp"
+            android:text="1. startボタンを押して認証を行ないます。" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2. 終了するには通知領域などから呼び出してstopボタンを押してください。" />
+    </LinearLayout>
     <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
             android:text="start"
             android:id="@+id/auth"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center" />
     </FrameLayout>
 </LinearLayout>
