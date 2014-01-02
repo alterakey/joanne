@@ -41,6 +41,9 @@ public class WelcomeFragment extends Fragment {
 
                 final Activity activity = getActivity();
                 if (activity != null) {
+                    if (!TweetBroadcastService.sActive) {
+                        Toast.makeText(activity.getApplicationContext(), "終了しました。", Toast.LENGTH_SHORT).show();
+                    }
                     activity.finish();
                 }
             }
