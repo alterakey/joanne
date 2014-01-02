@@ -1,5 +1,6 @@
 package com.gmail.altakey.joanne.service;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -8,10 +9,12 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.gmail.altakey.joanne.R;
+import com.gmail.altakey.joanne.activity.MainActivity;
 import com.gmail.altakey.joanne.view.TweetDisplayBuilder;
 
 import twitter4j.DirectMessage;
@@ -44,9 +47,24 @@ public class TweetBroadcastService extends Service {
         }
     };
 
+    public static final int SERVICE_ID = 1;
 
     @Override
     public void onCreate() {
+        final String title = "tweets.on.air: ready";
+        final Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        startForeground(SERVICE_ID, builder
+                .setContentTitle(title)
+                .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0))
+                .setTicker(title)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .build());
+
         sActive = true;
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_STATE_CHANGED));
     }
@@ -69,6 +87,8 @@ public class TweetBroadcastService extends Service {
 
             @Override
             protected void onPostExecute(Void aVoid) {
+                stopForeground(true);
+
                 mStream = null;
                 sActive = false;
                 LocalBroadcastManager.getInstance(TweetBroadcastService.this).sendBroadcast(new Intent(ACTION_STATE_CHANGED));
