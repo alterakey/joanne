@@ -1,5 +1,6 @@
 package com.gmail.altakey.joanne.fragment;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.service.TweetBroadcastService;
 import com.gmail.altakey.joanne.service.TwitterAuthService;
+import com.gmail.altakey.joanne.view.TweetDisplayBuilder;
 
 public class WelcomeFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
@@ -36,6 +38,11 @@ public class WelcomeFragment extends Fragment {
             } else if (TweetBroadcastService.ACTION_STATE_CHANGED.equals(action)) {
                 hideProcessingDialog();
                 updateTitle(getView());
+
+                final Activity activity = getActivity();
+                if (activity != null) {
+                    activity.finish();
+                }
             }
         }
     };
