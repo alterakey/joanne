@@ -16,11 +16,18 @@ import twitter4j.auth.AccessToken;
 public class UserRelation {
     private static final Object sLock = new Object();
 
+    private final Context mContext;
     private final TwitterStream mStream;
     private static String sCachedMyScreenName;
     private static Set<Long> sCachedFriends;
 
     public UserRelation(final TwitterStream target) {
+        mContext = null;
+        mStream = target;
+    }
+
+    public UserRelation(final Context context, final TwitterStream target) {
+        mContext = context;
         mStream = target;
     }
 
@@ -37,6 +44,10 @@ public class UserRelation {
         }
     }
 
+    public String getMyScreenName() {
+        return getMyScreenName(null);
+    }
+
     public String getMyScreenName(final Context context) {
         try {
             final AccessToken token = getToken();
@@ -44,8 +55,9 @@ public class UserRelation {
             if (screenName != null) {
                 return screenName;
             } else if (sCachedMyScreenName == null) {
-                if (context != null) {
-                    final SharedPreferences pref = context.getSharedPreferences(TwitterAuthService.PREFERENCE, Context.MODE_PRIVATE);
+                final Context c = context != null ? context : mContext;
+                if (c != null) {
+                    final SharedPreferences pref = c.getSharedPreferences(TwitterAuthService.PREFERENCE, Context.MODE_PRIVATE);
                     sCachedMyScreenName = pref.getString("screen_name", null);
                 }
             }
@@ -56,10 +68,15 @@ public class UserRelation {
         }
     }
 
+    public boolean isFriend(final User user) {
+        return isFriend(null, user);
+    }
+
     public boolean isFriend(final Context context, final User user) {
         synchronized (sLock) {
             if (sCachedFriends == null) {
-                final SharedPreferences pref = context.getSharedPreferences(TwitterAuthService.PREFERENCE, Context.MODE_PRIVATE);
+                final Context c = context != null ? context : mContext;
+                final SharedPreferences pref = c.getSharedPreferences(TwitterAuthService.PREFERENCE, Context.MODE_PRIVATE);
                 sCachedFriends = new IdListCoder().decode(pref.getString("friends", ""));
             }
             return sCachedFriends.contains(user.getId());

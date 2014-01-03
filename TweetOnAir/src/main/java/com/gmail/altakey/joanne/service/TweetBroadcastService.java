@@ -1,5 +1,6 @@
 package com.gmail.altakey.joanne.service;
 
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -15,7 +16,10 @@ import android.util.Log;
 
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.activity.MainActivity;
+import com.gmail.altakey.joanne.view.RadioProfile;
 import com.gmail.altakey.joanne.view.TweetDisplayBuilder;
+
+import java.util.Date;
 
 import twitter4j.DirectMessage;
 import twitter4j.StallWarning;
@@ -54,17 +58,18 @@ public class TweetBroadcastService extends Service {
     public void onCreate() {
         final String title = getString(R.string.app_name);
         final String status = "ready";
+
         final Intent intent = new Intent(this, MainActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         startForeground(SERVICE_ID, mNotificationBuilder
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setTicker(String.format("%s: %s", title, status))
                 .setContentTitle(title)
                 .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0))
-                .setTicker(String.format("%s: %s", title, status))
-                .setSubText(status)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentInfo(status)
                 .build());
 
         sActive = true;
@@ -114,45 +119,39 @@ public class TweetBroadcastService extends Service {
             mStream.addListener(new StreamListener());
             mStream.user();
 
-            sHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    new TweetDisplayBuilder(getApplicationContext(), mStream).ready().show();
-                }
-            });
+            present(new RadioProfile(getApplicationContext(), mStream).ready());
         }
         return START_STICKY;
     }
 
-    private class StreamListener implements UserStreamListener {
-
-        private boolean shouldDisplay() {
-            final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-            return pm.isScreenOn();
+    private void present(final RadioProfile radio) {
+        final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+        if (pm.isScreenOn()) {
+            sHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    new TweetDisplayBuilder(radio.getContext(), null).profile(radio).show();
+                }
+            });
         }
 
+        final NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.notify(SERVICE_ID, mNotificationBuilder
+                .setContentText(radio.getRawText())
+                .setContentInfo(radio.getScreenName())
+                .setWhen(new Date().getTime())
+                .build());
+    }
+
+    private class StreamListener implements UserStreamListener {
         @Override
         public void onStatus(final Status status) {
-            if (shouldDisplay()) {
-                sHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        new TweetDisplayBuilder(getApplicationContext(), mStream).status(status).show();
-                    }
-                });
-            }
+            present(new RadioProfile(getApplicationContext(), mStream).status(status));
         }
 
         @Override
         public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
-            if (shouldDisplay()) {
-                sHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        new TweetDisplayBuilder(getApplicationContext(), mStream).deletion().show();
-                    }
-                });
-            }
+            present(new RadioProfile(getApplicationContext(), mStream).deletion());
         }
 
         @Override
@@ -167,14 +166,7 @@ public class TweetBroadcastService extends Service {
         @Override
         public void onException(Exception e) {
             Log.w("SL", "got exception while tracing up stream", e);
-            if (shouldDisplay()) {
-                sHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        new TweetDisplayBuilder(getApplicationContext(), mStream).error().show();
-                    }
-                });
-            }
+            present(new RadioProfile(getApplicationContext(), mStream).error());
         }
 
         @Override
@@ -185,14 +177,7 @@ public class TweetBroadcastService extends Service {
 
         @Override
         public void onFavorite(final User source, final User target, Status status) {
-            if (shouldDisplay()) {
-                sHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        new TweetDisplayBuilder(getApplicationContext(), mStream).favorite(source, target).show();
-                    }
-                });
-            }
+            present(new RadioProfile(getApplicationContext(), mStream).favorite(source, target));
         }
 
         @Override
@@ -200,14 +185,7 @@ public class TweetBroadcastService extends Service {
 
         @Override
         public void onFollow(final User source, final User target) {
-            if (shouldDisplay()) {
-                sHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        new TweetDisplayBuilder(getApplicationContext(), mStream).follow(source, target).show();
-                    }
-                });
-            }
+            present(new RadioProfile(getApplicationContext(), mStream).follow(source, target));
             try {
                 TwitterAuthService.updateFriendsList(TweetBroadcastService.this, mStream.getOAuthAccessToken());
             } catch (TwitterException e) {
@@ -220,26 +198,12 @@ public class TweetBroadcastService extends Service {
 
         @Override
         public void onUserListMemberAddition(final User addedMember, final User listOwner, UserList userList) {
-            if (shouldDisplay()) {
-                sHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        new TweetDisplayBuilder(getApplicationContext(), mStream).listed(listOwner, addedMember).show();
-                    }
-                });
-            }
+            present(new RadioProfile(getApplicationContext(), mStream).listed(listOwner, addedMember));
         }
 
         @Override
         public void onUserListMemberDeletion(final User deletedMember, final User listOwner, UserList userList) {
-            if (shouldDisplay()) {
-                sHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        new TweetDisplayBuilder(getApplicationContext(), mStream).unlisted(listOwner, deletedMember).show();
-                    }
-                });
-            }        
+            present(new RadioProfile(getApplicationContext(), mStream).unlisted(listOwner, deletedMember));
         }
 
         @Override
@@ -262,14 +226,7 @@ public class TweetBroadcastService extends Service {
 
         @Override
         public void onBlock(final User source, final User target) {
-            if (shouldDisplay()) {
-                sHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        new TweetDisplayBuilder(getApplicationContext(), mStream).block(source, target).show();
-                    }
-                });
-            }
+            present(new RadioProfile(getApplicationContext(), mStream).block(source, target));
         }
 
         @Override
