@@ -22,6 +22,7 @@ public class ToastAnimationCanceler {
             paramsField.setAccessible(true);
             final WindowManager.LayoutParams params = (WindowManager.LayoutParams)paramsField.get(TN);
             params.windowAnimations = android.R.style.Animation;
+            params.flags &= ~WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
         } catch (NoSuchFieldException e) {
             Log.w("TAC", "cannot find TN", e);
         } catch (IllegalAccessException e) {
