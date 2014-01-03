@@ -19,7 +19,6 @@ import android.widget.Toast;
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.service.TweetBroadcastService;
 import com.gmail.altakey.joanne.service.TwitterAuthService;
-import com.gmail.altakey.joanne.view.TweetDisplayBuilder;
 
 public class WelcomeFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
@@ -34,7 +33,7 @@ public class WelcomeFragment extends Fragment {
                 c.startService(serviceLaunchIntent);
             } else if (TwitterAuthService.ACTION_AUTH_FAIL.equals(action)) {
                 hideProcessingDialog();
-                Toast.makeText(c, "Authentication failure", Toast.LENGTH_LONG).show();
+                Toast.makeText(c, c.getString(R.string.auth_failure), Toast.LENGTH_LONG).show();
             } else if (TweetBroadcastService.ACTION_STATE_CHANGED.equals(action)) {
                 hideProcessingDialog();
                 updateTitle(getView());
@@ -42,7 +41,8 @@ public class WelcomeFragment extends Fragment {
                 final Activity activity = getActivity();
                 if (activity != null) {
                     if (!TweetBroadcastService.sActive) {
-                        Toast.makeText(activity.getApplicationContext(), "終了しました。", Toast.LENGTH_SHORT).show();
+                        final Context context = activity.getApplicationContext();
+                        Toast.makeText(context, context.getString(R.string.terminating), Toast.LENGTH_SHORT).show();
                     }
                     activity.finish();
                 }
@@ -85,9 +85,9 @@ public class WelcomeFragment extends Fragment {
     private void updateTitle(final View root) {
         final TextView proceed = (TextView)root.findViewById(R.id.auth);
         if (TweetBroadcastService.sActive) {
-            proceed.setText("stop");
+            proceed.setText(getString(R.string.stop));
         } else {
-            proceed.setText("start");
+            proceed.setText(getString(R.string.start));
         }
     }
 

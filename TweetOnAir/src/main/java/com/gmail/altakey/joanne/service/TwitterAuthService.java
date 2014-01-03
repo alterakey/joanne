@@ -15,6 +15,7 @@
  */
 package com.gmail.altakey.joanne.service;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.IntentService;
 import android.content.Context;
@@ -54,6 +55,10 @@ public class TwitterAuthService extends IntentService {
     public static final String EXTRA_TOKEN = "token";
 
     public static final String PREFERENCE = "com.gmail.altakey.joanne";
+    public static final String KEY_TOKEN = "token";
+    public static final String KEY_TOKEN_SECRET = "token_secret";
+    public static final String KEY_SCREEN_NAME = "screen_name";
+    public static final String KEY_FRIENDS = "friends";
 
     public TwitterAuthService() {
         super("TwitterAuthService");
@@ -120,8 +125,8 @@ public class TwitterAuthService extends IntentService {
  
     public AccessToken getAccessToken() {
         final SharedPreferences prefs = getSharedPreferences(PREFERENCE, MODE_PRIVATE);
-        final String token = prefs.getString("token", null);
-        final String tokenSecret = prefs.getString("token_secret", null);
+        final String token = prefs.getString(KEY_TOKEN, null);
+        final String tokenSecret = prefs.getString(KEY_TOKEN_SECRET, null);
         if (token != null && tokenSecret != null) {
             return new AccessToken(token, tokenSecret);
         } else {
@@ -133,9 +138,9 @@ public class TwitterAuthService extends IntentService {
         final SharedPreferences prefs = getSharedPreferences(PREFERENCE, MODE_PRIVATE);
         prefs
             .edit()
-            .putString("token", token.getToken())
-            .putString("token_secret", token.getTokenSecret())
-            .putString("screen_name", token.getScreenName())
+            .putString(KEY_TOKEN, token.getToken())
+            .putString(KEY_TOKEN_SECRET, token.getTokenSecret())
+            .putString(KEY_SCREEN_NAME, token.getScreenName())
             .commit();
     }
 
@@ -157,7 +162,7 @@ public class TwitterAuthService extends IntentService {
 
             prefs
                 .edit()
-                .putString("friends", new IdListCoder().encode(set))
+                .putString(KEY_FRIENDS, new IdListCoder().encode(set))
                 .commit();
             UserRelation.notifyFriendsChanged();
             Log.d("TAS", String.format("got %d friends", set.size()));
@@ -168,9 +173,10 @@ public class TwitterAuthService extends IntentService {
 
     public static class AuthorizeActivity extends Activity {
         @Override
+        @SuppressLint("SetJavaScriptEnabled")
         public void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            setTitle("Twitter authentication");
+            setTitle(getString(R.string.twitter_auth_title));
  
             final Intent intent = getIntent();
             final WebView view = new WebView(this);

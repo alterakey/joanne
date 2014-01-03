@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.gmail.altakey.joanne.service.TwitterAuthService;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import twitter4j.TwitterException;

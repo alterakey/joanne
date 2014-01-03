@@ -2,7 +2,6 @@ package com.gmail.altakey.joanne.util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONStringer;
 import org.json.JSONTokener;
 
 import java.util.HashSet;

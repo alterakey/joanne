@@ -1,5 +1,6 @@
 package com.gmail.altakey.joanne.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -73,6 +74,7 @@ public class TweetDisplayBuilder {
         return on(content);
     }
 
+    @SuppressLint("ShowToast")
     public Toast on(final TweetView content) {
         final Toast message = Toast.makeText(mContext, "", Toast.LENGTH_LONG);
         message.setView(content);

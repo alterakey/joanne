@@ -48,20 +48,22 @@ public class TweetBroadcastService extends Service {
     };
 
     public static final int SERVICE_ID = 1;
+    private final NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder(this);
 
     @Override
     public void onCreate() {
-        final String title = "tweets.on.air: ready";
+        final String title = getString(R.string.app_name);
+        final String status = "ready";
         final Intent intent = new Intent(this, MainActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        startForeground(SERVICE_ID, builder
+        startForeground(SERVICE_ID, mNotificationBuilder
                 .setContentTitle(title)
                 .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0))
-                .setTicker(title)
+                .setTicker(String.format("%s: %s", title, status))
+                .setSubText(status)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .build());
 
