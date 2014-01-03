@@ -1,6 +1,7 @@
 package com.gmail.altakey.joanne.view;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.gmail.altakey.joanne.util.UserRelation;
 
@@ -72,6 +73,7 @@ public class RadioProfile {
 
     private Radio getRadio() {
         final Radio r = new Radio();
+        r.setDuration(Toast.LENGTH_LONG);
         r.setTextSize(TEXT_SIZE);
         r.setTextColor(TEXT_COLOR);
         r.setScreenNameSize(SCREENNAME_SIZE);
