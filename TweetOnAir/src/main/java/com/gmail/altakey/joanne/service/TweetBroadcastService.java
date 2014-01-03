@@ -130,7 +130,7 @@ public class TweetBroadcastService extends Service {
             sHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    new TweetDisplayBuilder(radio.getContext(), null).profile(radio).show();
+                    new TweetDisplayBuilder(radio.getContext()).profile(radio).show();
                 }
             });
         }

@@ -7,53 +7,13 @@ import android.widget.Toast;
 
 import com.gmail.altakey.joanne.hack.ToastAnimationCanceler;
 
-import twitter4j.Status;
 import twitter4j.TwitterStream;
-import twitter4j.User;
 
 public class TweetDisplayBuilder {
-    private TwitterStream mStream;
     private Context mContext;
 
-    public TweetDisplayBuilder(final Context context, final TwitterStream stream) {
-        mStream = stream;
+    public TweetDisplayBuilder(final Context context) {
         mContext = context;
-    }
-
-    public Toast status(final Status status) {
-        return profile(new RadioProfile(mContext, mStream).status(status));
-    }
-
-    public Toast deletion() {
-        return profile(new RadioProfile(mContext, mStream).deletion());
-    }
-
-    public Toast favorite(final User source, final User target) {
-        return profile(new RadioProfile(mContext, mStream).favorite(source, target));
-    }
-
-    public Toast follow(final User source, final User target) {
-        return profile(new RadioProfile(mContext, mStream).follow(source, target));
-    }
-
-    public Toast block(final User source, final User target) {
-        return profile(new RadioProfile(mContext, mStream).block(source, target));
-    }
-
-    public Toast listed(final User source, final User target) {
-        return profile(new RadioProfile(mContext, mStream).listed(source, target));
-    }
-
-    public Toast unlisted(final User source, final User target) {
-        return profile(new RadioProfile(mContext, mStream).unlisted(source, target));
-    }
-
-    public Toast ready() {
-        return profile(new RadioProfile(mContext, mStream).ready());
-    }
-
-    public Toast error() {
-        return profile(new RadioProfile(mContext, mStream).error());
     }
 
     public Toast profile(final RadioProfile profile) {
