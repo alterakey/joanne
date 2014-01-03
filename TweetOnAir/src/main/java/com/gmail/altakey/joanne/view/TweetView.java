@@ -36,7 +36,7 @@ public class TweetView extends LinearLayout {
         mText = (TextView)findViewById(R.id.text);
     }
 
-    public TweetView radio(final RadioProfile radio) {
+    public TweetView radio(final Radio radio) {
         mScreenName.setText(radio.getScreenName());
         mScreenName.setTextColor(radio.getScreenNameColor());
         mScreenName.setTextSize(TypedValue.COMPLEX_UNIT_SP, radio.getScreenNameSize());

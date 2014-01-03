@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.activity.MainActivity;
+import com.gmail.altakey.joanne.view.Radio;
 import com.gmail.altakey.joanne.view.RadioProfile;
 import com.gmail.altakey.joanne.view.TweetDisplayBuilder;
 
@@ -140,23 +141,25 @@ public class TweetBroadcastService extends Service {
         return START_STICKY;
     }
 
-    private void present(final RadioProfile radio) {
-        final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-        if (pm.isScreenOn()) {
-            sHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    new TweetDisplayBuilder(getApplicationContext(), radio).build().show();
-                }
-            });
-        }
+    private void present(final Radio radio) {
+        if (radio != null) {
+            final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+            if (pm.isScreenOn()) {
+                sHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        new TweetDisplayBuilder(getApplicationContext(), radio).build().show();
+                    }
+                });
+            }
 
-        final NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.notify(SERVICE_ID, mNotificationBuilder
-                .setContentText(radio.getRawText())
-                .setContentInfo(radio.getScreenName())
-                .setWhen(new Date().getTime())
-                .build());
+            final NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+            nm.notify(SERVICE_ID, mNotificationBuilder
+                    .setContentText(radio.getRawText())
+                    .setContentInfo(radio.getScreenName())
+                    .setWhen(new Date().getTime())
+                    .build());
+        }
     }
 
     private class StreamListener implements UserStreamListener {

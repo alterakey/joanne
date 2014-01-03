@@ -9,20 +9,20 @@ import com.gmail.altakey.joanne.hack.ToastAnimationCanceler;
 
 public class TweetDisplayBuilder {
     private Context mContext;
-    private RadioProfile mProfile;
+    private Radio mRadio;
 
-    public TweetDisplayBuilder(final Context context, final RadioProfile profile) {
+    public TweetDisplayBuilder(final Context context, final Radio radio) {
         mContext = context;
-        mProfile = profile;
+        mRadio = radio;
     }
 
     public Toast build() {
         @SuppressLint("ShowToast")
         final Toast message = Toast.makeText(mContext, "", Toast.LENGTH_LONG);
-        message.setView(new TweetView(mContext).radio(mProfile));
+        message.setView(new TweetView(mContext).radio(mRadio));
         message.setGravity(Gravity.TOP, 0, 0);
         message.setMargin(0.0f, 0.0f);
-        message.setDuration(mProfile.getDuration());
+        message.setDuration(mRadio.getDuration());
         new ToastAnimationCanceler(message).apply();
         return message;
     }
