@@ -14,7 +14,8 @@ public class RadioProfile {
     private final static int COLOR_FOE = 0xffff0000;
     private final static int COLOR_FRIEND = 0xff8888ff;
     private final static int COLOR_NEUTRAL = 0xffff8800;
-    private final static int COLOR_TEXT = 0xffffffff;
+
+    private final static int TEXT_COLOR = 0xffffffff;
 
     private final static String FAVORITE_SCREENNAME = "Tracer 2";
     private final static String FAVORITE_TEXT = "favったか";
@@ -69,7 +70,7 @@ public class RadioProfile {
     private int mScreenNameColor;
     private String mText;
     private UserRelation mRelation;
-    private int mTextColor = COLOR_TEXT;
+    private int mTextColor;
 
     public RadioProfile(final Context context, final TwitterStream stream) {
         mContext = context;
@@ -123,17 +124,19 @@ public class RadioProfile {
                 return retweeting();
             }
         } else {
+            mScreenName = target.getUser().getScreenName();
+            mText = target.getText();
+            mScreenNameColor = getScreenNameColorOf(target.getUser());
+
             final String myScreenName = mRelation.getMyScreenName();
             if (myScreenName != null) {
                 if (status.getText().contains(String.format("@%s", myScreenName))) {
                     mTextColor = MENTION_COLOR;
+                } else {
+                    mTextColor = TEXT_COLOR;
                 }
             }
         }
-
-        mScreenName = target.getUser().getScreenName();
-        mText = target.getText();
-        mScreenNameColor = getScreenNameColorOf(target.getUser());
         return this;
     }
 
@@ -150,6 +153,7 @@ public class RadioProfile {
         mScreenName = RETWEET_SCREENNAME;
         mText = RETWEET_TEXT;
         mScreenNameColor = RETWEET_COLOR;
+        mTextColor = TEXT_COLOR;
         return this;
     }
 
@@ -157,6 +161,7 @@ public class RadioProfile {
         mScreenName = RETWEETING_SCREENNAME;
         mText = RETWEETING_TEXT;
         mScreenNameColor = RETWEETING_COLOR;
+        mTextColor = TEXT_COLOR;
         return this;
     }
 
@@ -164,6 +169,7 @@ public class RadioProfile {
         mScreenName = DELETE_SCREENNAME;
         mText = DELETE_TEXT;
         mScreenNameColor = DELETE_COLOR;
+        mTextColor = TEXT_COLOR;
         return this;
     }
 
@@ -172,10 +178,12 @@ public class RadioProfile {
             mScreenName = FOLLOWING_SCREENNAME;
             mText = FOLLOWING_TEXT;
             mScreenNameColor = FOLLOWING_COLOR;
+            mTextColor = TEXT_COLOR;
         } else if (mRelation.isMe(target)) {
             mScreenName = FOLLOW_SCREENNAME;
             mText = FOLLOW_TEXT;
             mScreenNameColor = FOLLOW_COLOR;
+            mTextColor = TEXT_COLOR;
         }
         return this;
     }
@@ -185,6 +193,7 @@ public class RadioProfile {
             mScreenName = BLOCKING_SCREENNAME;
             mText = BLOCKING_TEXT;
             mScreenNameColor = BLOCKING_COLOR;
+            mTextColor = TEXT_COLOR;
         }
         return this;
     }
@@ -194,6 +203,7 @@ public class RadioProfile {
             mScreenName = LISTED_SCREENNAME;
             mText = LISTED_TEXT;
             mScreenNameColor = LISTED_COLOR;
+            mTextColor = TEXT_COLOR;
         }
         return this;
     }
@@ -203,6 +213,7 @@ public class RadioProfile {
             mScreenName = UNLISTED_SCREENNAME;
             mText = UNLISTED_TEXT;
             mScreenNameColor = UNLISTED_COLOR;
+            mTextColor = TEXT_COLOR;
         }
         return this;
     }
@@ -211,6 +222,7 @@ public class RadioProfile {
         mScreenName = READY_SCREENNAME;
         mText = READY_TEXT;
         mScreenNameColor = READY_COLOR;
+        mTextColor = TEXT_COLOR;
         return this;
     }
 
@@ -218,6 +230,7 @@ public class RadioProfile {
         mScreenName = ERROR_SCREENNAME;
         mText = ERROR_TEXT;
         mScreenNameColor = ERROR_COLOR;
+        mTextColor = TEXT_COLOR;
         return this;
     }
 
