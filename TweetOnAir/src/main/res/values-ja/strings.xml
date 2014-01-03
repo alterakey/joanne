@@ -4,4 +4,5 @@
     <string name="action_settings">設定</string>
     <string name="auth_failure">認証に失敗しました。</string>
     <string name="terminating">終了しました。</string>
+    <string name="terminate_in_progress">終了しています…</string>
 </resources>

@@ -29,6 +29,7 @@ public class WelcomeFragment extends Fragment {
             final String action = intent.getAction();
             if (TwitterAuthService.ACTION_AUTH_SUCCESS.equals(action)) {
                 final Intent serviceLaunchIntent = new Intent(c, TweetBroadcastService.class);
+                serviceLaunchIntent.setAction(TweetBroadcastService.ACTION_START);
                 serviceLaunchIntent.putExtra(TweetBroadcastService.EXTRA_TOKEN, intent.getSerializableExtra(TwitterAuthService.EXTRA_TOKEN));
                 c.startService(serviceLaunchIntent);
             } else if (TwitterAuthService.ACTION_AUTH_FAIL.equals(action)) {
@@ -66,7 +67,7 @@ public class WelcomeFragment extends Fragment {
                 if (c != null) {
                     showProcessingDialog();
                     if (TweetBroadcastService.sActive) {
-                        c.stopService(new Intent(c, TweetBroadcastService.class));
+                        TweetBroadcastService.requestQuit(c);
                     } else {
                         final Intent intent = new Intent(c, TwitterAuthService.class);
                         intent.setAction(TwitterAuthService.ACTION_AUTH);

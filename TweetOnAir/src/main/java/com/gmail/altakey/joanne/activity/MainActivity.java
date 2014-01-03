@@ -24,7 +24,7 @@ public class MainActivity extends ActionBarActivity {
         final Intent intent = getIntent();
 
         if (intent != null && ACTION_QUIT.equals(intent.getAction())) {
-            stopService(new Intent(this, TweetBroadcastService.class));
+            TweetBroadcastService.requestQuit(this);
             finish();
             return;
         }

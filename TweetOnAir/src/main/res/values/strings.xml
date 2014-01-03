@@ -9,4 +9,5 @@
     <string name="terminating">Quitting</string>
     <string name="stop">stop</string>
     <string name="start">start</string>
+    <string name="terminate_in_progress">Quit in progress...</string>
 </resources>

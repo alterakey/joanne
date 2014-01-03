@@ -37,10 +37,12 @@ import twitter4j.auth.AccessToken;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class TweetBroadcastService extends Service {
-    public static final String ACTION_STATE_CHANGING = "ACTION_STATE_CHANGING";
+    public static final String ACTION_START = "ACTION_START";
+    public static final String ACTION_QUIT = "ACTION_QUIT";
     public static final String ACTION_STATE_CHANGED = "ACTION_STATE_CHANGED";
 
     public static final String EXTRA_TOKEN = TwitterAuthService.EXTRA_TOKEN;
+    public static final String TWITTER_URL = "https://twitter.com/";
 
     public static boolean sActive = false;
     private static Handler sHandler = new Handler();
@@ -56,22 +58,30 @@ public class TweetBroadcastService extends Service {
     public static final int SERVICE_ID = 1;
     private final NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder(this);
 
+    public static void requestQuit(final Context context) {
+        final Intent stopIntent = new Intent(context, TweetBroadcastService.class);
+        stopIntent.setAction(ACTION_QUIT);
+        context.startService(stopIntent);
+    }
+
     @Override
     public void onCreate() {
         final String title = getString(R.string.app_name);
         final String status = "ready";
 
-        final Intent intent = new Intent(this, MainActivity.class);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        final Intent quitIntent = new Intent(this, MainActivity.class);
+        quitIntent.setAction(MainActivity.ACTION_QUIT);
+
+        final Intent viewIntent = new Intent(Intent.ACTION_VIEW);
+        viewIntent.setData(Uri.parse(TWITTER_URL));
 
         startForeground(SERVICE_ID, mNotificationBuilder
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setTicker(String.format("%s: %s", title, status))
                 .setContentTitle(title)
-                .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0))
+                .setContentIntent(PendingIntent.getActivity(this, 0, viewIntent, 0))
                 .setContentInfo(status)
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Quit", PendingIntent.getActivity(this, 0, quitIntent, 0))
                 .build());
 
         sActive = true;
@@ -80,31 +90,7 @@ public class TweetBroadcastService extends Service {
 
     @Override
     public void onDestroy() {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected void onPreExecute() {
-                Toast.makeText(getApplicationContext(), "Quit in progress...", Toast.LENGTH_SHORT).show();
-                LocalBroadcastManager.getInstance(TweetBroadcastService.this).sendBroadcast(new Intent(ACTION_STATE_CHANGING));
-            }
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                if (mStream != null) {
-                    mStream.shutdown();
-                }
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                stopForeground(true);
-
-                mStream = null;
-                sActive = false;
-                LocalBroadcastManager.getInstance(TweetBroadcastService.this).sendBroadcast(new Intent(ACTION_STATE_CHANGED));
-                Toast.makeText(getApplicationContext(), getString(R.string.terminating), Toast.LENGTH_SHORT).show();
-            }
-        }.execute();
+        sActive = false;
     }
 
     @Override
@@ -114,16 +100,42 @@ public class TweetBroadcastService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
-        if (mStream == null) {
-            final AccessToken accessToken = (AccessToken)intent.getSerializableExtra(EXTRA_TOKEN);
-            final ConfigurationBuilder builder = new ConfigurationBuilder();
-            builder.setOAuthConsumerKey(getString(R.string.consumer_key));
-            builder.setOAuthConsumerSecret(getString(R.string.consumer_secret));
-            mStream = new TwitterStreamFactory(builder.build()).getInstance(accessToken);
-            mStream.addListener(new StreamListener());
-            mStream.user();
+        final String action = intent.getAction();
+        if (ACTION_START.equals(action)) {
+            if (mStream == null) {
+                final AccessToken accessToken = (AccessToken)intent.getSerializableExtra(EXTRA_TOKEN);
+                final ConfigurationBuilder builder = new ConfigurationBuilder();
+                builder.setOAuthConsumerKey(getString(R.string.consumer_key));
+                builder.setOAuthConsumerSecret(getString(R.string.consumer_secret));
+                mStream = new TwitterStreamFactory(builder.build()).getInstance(accessToken);
+                mStream.addListener(new StreamListener());
+                mStream.user();
 
-            present(new RadioProfile(getApplicationContext(), mStream).ready());
+                present(new RadioProfile(getApplicationContext(), mStream).ready());
+            }
+        } else if (ACTION_QUIT.equals(action)) {
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected void onPreExecute() {
+                    Toast.makeText(getApplicationContext(), getString(R.string.terminate_in_progress), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    if (mStream != null) {
+                        mStream.shutdown();
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    mStream = null;
+                    Toast.makeText(getApplicationContext(), getString(R.string.terminating), Toast.LENGTH_SHORT).show();
+                    LocalBroadcastManager.getInstance(TweetBroadcastService.this).sendBroadcast(new Intent(ACTION_STATE_CHANGED));
+                    stopSelf(startId);
+                }
+            }.execute();
         }
         return START_STICKY;
     }
