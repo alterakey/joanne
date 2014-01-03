@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.activity.MainActivity;
@@ -81,6 +83,7 @@ public class TweetBroadcastService extends Service {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
+                Toast.makeText(getApplicationContext(), "Quit in progress...", Toast.LENGTH_SHORT).show();
                 LocalBroadcastManager.getInstance(TweetBroadcastService.this).sendBroadcast(new Intent(ACTION_STATE_CHANGING));
             }
 
@@ -99,6 +102,7 @@ public class TweetBroadcastService extends Service {
                 mStream = null;
                 sActive = false;
                 LocalBroadcastManager.getInstance(TweetBroadcastService.this).sendBroadcast(new Intent(ACTION_STATE_CHANGED));
+                Toast.makeText(getApplicationContext(), getString(R.string.terminating), Toast.LENGTH_SHORT).show();
             }
         }.execute();
     }

@@ -40,10 +40,6 @@ public class WelcomeFragment extends Fragment {
 
                 final Activity activity = getActivity();
                 if (activity != null) {
-                    if (!TweetBroadcastService.sActive) {
-                        final Context context = activity.getApplicationContext();
-                        Toast.makeText(context, context.getString(R.string.terminating), Toast.LENGTH_SHORT).show();
-                    }
                     activity.finish();
                 }
             }

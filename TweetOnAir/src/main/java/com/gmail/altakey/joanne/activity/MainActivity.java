@@ -12,12 +12,23 @@ import android.view.MenuItem;
 
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.fragment.WelcomeFragment;
+import com.gmail.altakey.joanne.service.TweetBroadcastService;
 
 public class MainActivity extends ActionBarActivity {
+
+    public static final String ACTION_QUIT = "quit";
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final Intent intent = getIntent();
+
+        if (intent != null && ACTION_QUIT.equals(intent.getAction())) {
+            stopService(new Intent(this, TweetBroadcastService.class));
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_main);
 
         final ViewPager pager = (ViewPager) findViewById(R.id.pager);
