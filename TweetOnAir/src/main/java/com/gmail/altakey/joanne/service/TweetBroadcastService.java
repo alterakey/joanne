@@ -49,6 +49,7 @@ public class TweetBroadcastService extends Service {
     private static Handler sHandler = new Handler();
 
     private TwitterStream mStream;
+    private RadioProfile mProfile;
 
     private final IBinder mBinder = new Binder () {
         TweetBroadcastService getService() {
@@ -109,10 +110,12 @@ public class TweetBroadcastService extends Service {
                 builder.setOAuthConsumerKey(getString(R.string.consumer_key));
                 builder.setOAuthConsumerSecret(getString(R.string.consumer_secret));
                 mStream = new TwitterStreamFactory(builder.build()).getInstance(accessToken);
+                mProfile = new RadioProfile(getApplicationContext(), mStream);
+                
                 mStream.addListener(new StreamListener());
                 mStream.user();
 
-                present(new RadioProfile(getApplicationContext(), mStream).ready());
+                present(mProfile.ready());
             }
         } else if (ACTION_QUIT.equals(action)) {
             new AsyncTask<Void, Void, Void>() {
@@ -131,6 +134,7 @@ public class TweetBroadcastService extends Service {
 
                 @Override
                 protected void onPostExecute(Void aVoid) {
+                    mProfile = null;
                     mStream = null;
                     Toast.makeText(getApplicationContext(), getString(R.string.terminating), Toast.LENGTH_SHORT).show();
                     LocalBroadcastManager.getInstance(TweetBroadcastService.this).sendBroadcast(new Intent(ACTION_STATE_CHANGED));
@@ -165,12 +169,12 @@ public class TweetBroadcastService extends Service {
     private class StreamListener implements UserStreamListener {
         @Override
         public void onStatus(final Status status) {
-            present(new RadioProfile(getApplicationContext(), mStream).status(status));
+            present(mProfile.status(status));
         }
 
         @Override
         public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
-            present(new RadioProfile(getApplicationContext(), mStream).deletion());
+            present(mProfile.deletion());
         }
 
         @Override
@@ -185,7 +189,7 @@ public class TweetBroadcastService extends Service {
         @Override
         public void onException(Exception e) {
             Log.w("SL", "got exception while tracing up stream", e);
-            present(new RadioProfile(getApplicationContext(), mStream).error());
+            present(mProfile.error());
         }
 
         @Override
@@ -196,7 +200,7 @@ public class TweetBroadcastService extends Service {
 
         @Override
         public void onFavorite(final User source, final User target, Status status) {
-            present(new RadioProfile(getApplicationContext(), mStream).favorite(source, target));
+            present(mProfile.favorite(source, target));
         }
 
         @Override
@@ -204,7 +208,7 @@ public class TweetBroadcastService extends Service {
 
         @Override
         public void onFollow(final User source, final User target) {
-            present(new RadioProfile(getApplicationContext(), mStream).follow(source, target));
+            present(mProfile.follow(source, target));
             try {
                 TwitterAuthService.updateFriendsList(TweetBroadcastService.this, mStream.getOAuthAccessToken());
             } catch (TwitterException e) {
@@ -217,12 +221,12 @@ public class TweetBroadcastService extends Service {
 
         @Override
         public void onUserListMemberAddition(final User addedMember, final User listOwner, UserList userList) {
-            present(new RadioProfile(getApplicationContext(), mStream).listed(listOwner, addedMember));
+            present(mProfile.listed(listOwner, addedMember));
         }
 
         @Override
         public void onUserListMemberDeletion(final User deletedMember, final User listOwner, UserList userList) {
-            present(new RadioProfile(getApplicationContext(), mStream).unlisted(listOwner, deletedMember));
+            present(mProfile.unlisted(listOwner, deletedMember));
         }
 
         @Override
@@ -245,7 +249,7 @@ public class TweetBroadcastService extends Service {
 
         @Override
         public void onBlock(final User source, final User target) {
-            present(new RadioProfile(getApplicationContext(), mStream).block(source, target));
+            present(mProfile.block(source, target));
         }
 
         @Override
