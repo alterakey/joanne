@@ -7,26 +7,22 @@ import android.widget.Toast;
 
 import com.gmail.altakey.joanne.hack.ToastAnimationCanceler;
 
-import twitter4j.TwitterStream;
-
 public class TweetDisplayBuilder {
     private Context mContext;
+    private RadioProfile mProfile;
 
-    public TweetDisplayBuilder(final Context context) {
+    public TweetDisplayBuilder(final Context context, final RadioProfile profile) {
         mContext = context;
+        mProfile = profile;
     }
 
-    public Toast profile(final RadioProfile profile) {
-        return on(profile, new TweetView(mContext).radio(profile));
-    }
-
-    @SuppressLint("ShowToast")
-    public Toast on(final RadioProfile profile, final TweetView content) {
+    public Toast build() {
+        @SuppressLint("ShowToast")
         final Toast message = Toast.makeText(mContext, "", Toast.LENGTH_LONG);
-        message.setView(content);
+        message.setView(new TweetView(mContext).radio(mProfile));
         message.setGravity(Gravity.TOP, 0, 0);
         message.setMargin(0.0f, 0.0f);
-        message.setDuration(profile.getDuration());
+        message.setDuration(mProfile.getDuration());
         new ToastAnimationCanceler(message).apply();
         return message;
     }

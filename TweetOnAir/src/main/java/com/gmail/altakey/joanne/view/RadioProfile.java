@@ -65,7 +65,6 @@ public class RadioProfile {
     private final static int SCREENNAME_SIZE = 14;
     private final static int TEXT_SIZE = 16;
 
-    private Context mContext;
     private String mScreenName;
     private int mScreenNameColor;
     private String mText;
@@ -73,12 +72,7 @@ public class RadioProfile {
     private int mTextColor;
 
     public RadioProfile(final Context context, final TwitterStream stream) {
-        mContext = context;
         mRelation = new UserRelation(context, stream);
-    }
-
-    public Context getContext() {
-        return mContext;
     }
 
     public int getScreenNameSize() {

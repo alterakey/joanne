@@ -146,7 +146,7 @@ public class TweetBroadcastService extends Service {
             sHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    new TweetDisplayBuilder(radio.getContext()).profile(radio).show();
+                    new TweetDisplayBuilder(getApplicationContext(), radio).build().show();
                 }
             });
         }
