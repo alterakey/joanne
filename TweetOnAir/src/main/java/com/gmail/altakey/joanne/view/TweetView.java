@@ -28,15 +28,15 @@ public class TweetView extends LinearLayout {
     private final static int FAVORITE_COLOR = COLOR_BUDDY;
 
     private final static String RETWEET_SCREENNAME = "Tracer 2";
-    private final static String RETWEET_TEXT = "注意！拡散されているぞ";
+    private final static String RETWEET_TEXT = "注意 拡散されているぞ";
     private final static int RETWEET_COLOR = COLOR_BUDDY;
 
     private final static String FOLLOW_SCREENNAME = "Tracer 2";
-    private final static String FOLLOW_TEXT = "注意！敵にロックされている";
+    private final static String FOLLOW_TEXT = "注意 敵にロックされている";
     private final static int FOLLOW_COLOR = COLOR_BUDDY;
 
     private final static String LISTED_SCREENNAME = "Tracer 2";
-    private final static String LISTED_TEXT = "注意！レーダー照射を受けている";
+    private final static String LISTED_TEXT = "注意 レーダー照射を受けている";
     private final static int LISTED_COLOR = COLOR_BUDDY;
 
     private final static String UNLISTED_SCREENNAME = "AWACS";
@@ -44,15 +44,15 @@ public class TweetView extends LinearLayout {
     private final static int UNLISTED_COLOR = COLOR_FRIEND;
 
     private final static String READY_SCREENNAME = "AWACS";
-    private final static String READY_TEXT = "全機 聞こえるか？";
+    private final static String READY_TEXT = "全機 聞こえるか";
     private final static int READY_COLOR = COLOR_FRIEND;
 
     private final static String ERROR_SCREENNAME = "Tracer 2";
-    private final static String ERROR_TEXT = "無線不調 無線不調…";
+    private final static String ERROR_TEXT = "無線不調 無線不調";
     private final static int ERROR_COLOR = COLOR_BUDDY;
 
     private final static String BLOCKING_SCREENNAME = "Tracer 2";
-    private final static String BLOCKING_TEXT = "撃墜確認！いいぞ";
+    private final static String BLOCKING_TEXT = "撃墜確認 いいぞ";
     private final static int BLOCKING_COLOR = COLOR_BUDDY;
 
     private final static String FOLLOWING_SCREENNAME = "AWACS";
