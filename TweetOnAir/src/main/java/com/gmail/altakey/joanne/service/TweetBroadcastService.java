@@ -50,6 +50,10 @@ public class TweetBroadcastService extends Service {
 
     private TwitterStream mStream;
     private RadioProfile mProfile;
+    private String mCurrentStatus;
+
+    private static final String STATUS_READY = "ready";
+    private static final String STATUS_FLAKY = "flaky";
 
     private final IBinder mBinder = new Binder () {
         TweetBroadcastService getService() {
@@ -66,27 +70,34 @@ public class TweetBroadcastService extends Service {
         context.startService(stopIntent);
     }
 
+    private String getServiceStatus() {
+        return String.format("%s: %s", getString(R.string.app_name), mCurrentStatus);
+    }
+
+
     @Override
     public void onCreate() {
-        final String title = getString(R.string.app_name);
-        final String status = "ready";
-
         final Intent quitIntent = new Intent(this, MainActivity.class);
         quitIntent.setAction(MainActivity.ACTION_QUIT);
+
+        final Intent mainIntent = new Intent(this, MainActivity.class);
+        mainIntent.setAction(Intent.ACTION_MAIN);
 
         final Intent viewIntent = new Intent(Intent.ACTION_VIEW);
         viewIntent.setData(Uri.parse(TWITTER_URL));
 
+        final String serviceStatus = getServiceStatus();
         startForeground(SERVICE_ID, mNotificationBuilder
                 .setSmallIcon(R.drawable.ic_launcher)
-                .setTicker(String.format("%s: %s", title, status))
-                .setContentTitle(title)
+                .setTicker(serviceStatus)
+                .setContentTitle(serviceStatus)
                 .setContentIntent(PendingIntent.getActivity(this, 0, viewIntent, 0))
-                .setContentInfo(status)
+                .addAction(android.R.drawable.ic_menu_preferences, "Configure", PendingIntent.getActivity(this, 0, mainIntent, 0))
                 .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Quit", PendingIntent.getActivity(this, 0, quitIntent, 0))
                 .build());
 
         sActive = true;
+        mCurrentStatus = STATUS_READY;
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_STATE_CHANGED));
     }
 
@@ -157,8 +168,15 @@ public class TweetBroadcastService extends Service {
                 });
             }
 
+            if (radio.isError()) {
+                mCurrentStatus = STATUS_FLAKY;
+            } else {
+                mCurrentStatus = STATUS_READY;
+            }
+
             final NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
             nm.notify(SERVICE_ID, mNotificationBuilder
+                    .setContentTitle(getServiceStatus())
                     .setContentText(radio.getRawText())
                     .setContentInfo(radio.getScreenName())
                     .setWhen(new Date().getTime())

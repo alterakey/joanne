@@ -206,6 +206,7 @@ public class RadioProfile {
 
     public Radio error() {
         final Radio r = getRadio();
+        r.setIsError(true);
         r.setScreenName(ERROR_SCREENNAME);
         r.setText(ERROR_TEXT);
         r.setScreenNameColor(ERROR_COLOR);

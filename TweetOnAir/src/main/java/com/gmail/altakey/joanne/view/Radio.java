@@ -8,6 +8,7 @@ public class Radio {
     private int mTextColor;
     private int mTextSize;
     private int mDuration;
+    private boolean mIsError;
 
     public int getScreenNameSize() {
         return mScreenNameSize;
@@ -67,5 +68,13 @@ public class Radio {
 
     public void setTextColor(final int textColor) {
         mTextColor = textColor;
+    }
+
+    public boolean isError() {
+        return mIsError;
+    }
+
+    public void setIsError(boolean isError) {
+        mIsError = isError;
     }
 }
