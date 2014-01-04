@@ -4,24 +4,6 @@
         android:key="version"
         android:title="@string/pref_version" />
 
-    <EditTextPreference
-        android:key="team_name"
-        android:title="@string/pref_team_name"
-        android:defaultValue="@string/pref_default_team_name" />
-
-    <EditTextPreference
-        android:key="team_name_english"
-        android:title="@string/pref_team_name_english"
-        android:defaultValue="@string/pref_default_team_name_english" />
-
-    <EditTextPreference
-        android:key="call_sign"
-        android:title="@string/pref_call_sign" />
-
-    <EditTextPreference
-        android:key="call_sign_buddy"
-        android:title="@string/pref_call_sign_buddy" />
-
     <CheckBoxPreference
         android:key="suppress_informal_rt"
         android:title="@string/pref_suppress_informal_rt" />
