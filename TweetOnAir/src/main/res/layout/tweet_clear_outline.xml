@@ -1,0 +1,27 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:joanne="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/transparent">
+    <com.gmail.altakey.joanne.view.OutlinedTextView
+        android:id="@+id/screen_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textStyle="bold"
+        joanne:outlineColor="#dd000000"
+        joanne:outlineWidth="2.5dp"
+        />
+    <com.gmail.altakey.joanne.view.OutlinedTextView
+        android:id="@+id/text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textStyle="italic"
+        android:textColor="@android:color/white"
+        joanne:outlineColor="#dd000000"
+        joanne:outlineWidth="2.5dp"
+        />
+</LinearLayout>

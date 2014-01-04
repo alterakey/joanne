@@ -2,7 +2,9 @@ package com.gmail.altakey.joanne.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.LinearLayout;
@@ -31,7 +33,12 @@ public class TweetView extends LinearLayout {
     }
 
     private void init(final Context context) {
-        inflate(context, R.layout.tweet, this);
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        if (pref.getBoolean("clear_outline", false)) {
+            inflate(context, R.layout.tweet_clear_outline, this);
+        } else {
+            inflate(context, R.layout.tweet, this);
+        }
         mScreenName = (TextView)findViewById(R.id.screen_name);
         mText = (TextView)findViewById(R.id.text);
     }
