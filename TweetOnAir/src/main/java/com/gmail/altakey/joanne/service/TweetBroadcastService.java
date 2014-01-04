@@ -77,6 +77,8 @@ public class TweetBroadcastService extends Service {
 
     @Override
     public void onCreate() {
+        mCurrentStatus = STATUS_READY;
+
         final Intent quitIntent = new Intent(this, MainActivity.class);
         quitIntent.setAction(MainActivity.ACTION_QUIT);
 
@@ -97,7 +99,6 @@ public class TweetBroadcastService extends Service {
                 .build());
 
         sActive = true;
-        mCurrentStatus = STATUS_READY;
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_STATE_CHANGED));
     }
 
