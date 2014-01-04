@@ -2,8 +2,12 @@ package com.gmail.altakey.joanne.view;
 
 import android.content.Context;
 import android.widget.Toast;
+import android.preference.PreferenceManager;
+import android.content.SharedPreferences;
 
 import com.gmail.altakey.joanne.util.UserRelation;
+
+import java.util.regex.Pattern;
 
 import twitter4j.Status;
 import twitter4j.TwitterStream;
@@ -16,6 +20,8 @@ public class RadioProfile {
     private final static int COLOR_NEUTRAL = 0xffff8800;
 
     private final static int TEXT_COLOR = 0xffffffff;
+
+    private final static String NULL_TEXT = "...";
 
     private final static String FAVORITE_SCREENNAME = "Tracer 2";
     private final static String FAVORITE_TEXT = "favったか";
@@ -65,9 +71,11 @@ public class RadioProfile {
     private final static int SCREENNAME_SIZE = 14;
     private final static int TEXT_SIZE = 16;
 
+    private Context mContext;
     private UserRelation mRelation;
 
     public RadioProfile(final Context context, final TwitterStream stream) {
+        mContext = context;
         mRelation = new UserRelation(context, stream);
     }
 
@@ -77,6 +85,30 @@ public class RadioProfile {
         r.setTextSize(TEXT_SIZE);
         r.setTextColor(TEXT_COLOR);
         r.setScreenNameSize(SCREENNAME_SIZE);
+        return r;
+    }
+
+    private Radio filter(final Radio r) {
+        if (r != null) {
+            if (readBooleanPreference("suppress_informal_rt")) {
+                r.filterText(Pattern.compile("(^|[\\s　]+)[RQ]T[\\s　]+.*$"), NULL_TEXT);
+                r.tidyText();
+            }
+            if (readBooleanPreference("suppress_url")) {
+                r.filterText(Pattern.compile("(^|[\\s　]+)https?://[^ ]+?([\\s　]+|$)"), NULL_TEXT);
+                r.tidyText();
+            }
+            if (readBooleanPreference("suppress_lf")) {
+                r.filterText(Pattern.compile("\\n"), "");
+            }
+            return r.isEmpty() ? nullify(r) : r;
+        } else {
+            return null;
+        }
+    }
+
+    private Radio nullify(final Radio r) {
+        r.setText(NULL_TEXT);
         return r;
     }
 
@@ -103,7 +135,7 @@ public class RadioProfile {
                 r.setTextColor(MENTION_COLOR);
             }
         }
-        return r;
+        return filter(r);
     }
 
     public Radio favorite(final User source, final User target) {
@@ -112,7 +144,7 @@ public class RadioProfile {
             r.setScreenName(FAVORITE_SCREENNAME);
             r.setText(FAVORITE_TEXT);
             r.setScreenNameColor(FAVORITE_COLOR);
-            return r;
+            return filter(r);
         } else {
             return null;
         }
@@ -123,7 +155,7 @@ public class RadioProfile {
         r.setScreenName(RETWEET_SCREENNAME);
         r.setText(RETWEET_TEXT);
         r.setScreenNameColor(RETWEET_COLOR);
-        return r;
+        return filter(r);
     }
 
     public Radio retweeting() {
@@ -131,7 +163,7 @@ public class RadioProfile {
         r.setScreenName(RETWEETING_SCREENNAME);
         r.setText(RETWEETING_TEXT);
         r.setScreenNameColor(RETWEETING_COLOR);
-        return r;
+        return filter(r);
     }
 
     public Radio deletion() {
@@ -139,7 +171,7 @@ public class RadioProfile {
         r.setScreenName(DELETE_SCREENNAME);
         r.setText(DELETE_TEXT);
         r.setScreenNameColor(DELETE_COLOR);
-        return r;
+        return filter(r);
     }
 
     public Radio follow(final User source, final User target) {
@@ -148,13 +180,13 @@ public class RadioProfile {
             r.setScreenName(FOLLOWING_SCREENNAME);
             r.setText(FOLLOWING_TEXT);
             r.setScreenNameColor(FOLLOWING_COLOR);
-            return r;
+            return filter(r);
         } else if (mRelation.isMe(target)) {
             final Radio r = getRadio();
             r.setScreenName(FOLLOW_SCREENNAME);
             r.setText(FOLLOW_TEXT);
             r.setScreenNameColor(FOLLOW_COLOR);
-            return r;
+            return filter(r);
         } else {
             return null;
         }
@@ -166,7 +198,7 @@ public class RadioProfile {
             r.setScreenName(BLOCKING_SCREENNAME);
             r.setText(BLOCKING_TEXT);
             r.setScreenNameColor(BLOCKING_COLOR);
-            return r;
+            return filter(r);
         } else {
             return null;
         }
@@ -178,7 +210,7 @@ public class RadioProfile {
             r.setScreenName(LISTED_SCREENNAME);
             r.setText(LISTED_TEXT);
             r.setScreenNameColor(LISTED_COLOR);
-            return r;
+            return filter(r);
         } else {
             return null;
         }
@@ -190,7 +222,7 @@ public class RadioProfile {
             r.setScreenName(UNLISTED_SCREENNAME);
             r.setText(UNLISTED_TEXT);
             r.setScreenNameColor(UNLISTED_COLOR);
-            return r;
+            return filter(r);
         } else {
             return null;
         }
@@ -201,7 +233,7 @@ public class RadioProfile {
         r.setScreenName(READY_SCREENNAME);
         r.setText(READY_TEXT);
         r.setScreenNameColor(READY_COLOR);
-        return r;
+        return filter(r);
     }
 
     public Radio error() {
@@ -210,7 +242,7 @@ public class RadioProfile {
         r.setScreenName(ERROR_SCREENNAME);
         r.setText(ERROR_TEXT);
         r.setScreenNameColor(ERROR_COLOR);
-        return r;
+        return filter(r);
     }
 
     private int getScreenNameColorOf(final User user) {
@@ -221,5 +253,10 @@ public class RadioProfile {
         } else {
             return COLOR_NEUTRAL;
         }
+    }
+
+    private boolean readBooleanPreference(final String key) {
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+        return pref.getBoolean(key, false);
     }
 }

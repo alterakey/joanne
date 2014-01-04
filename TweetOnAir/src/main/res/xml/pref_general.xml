@@ -3,4 +3,16 @@
     <Preference
         android:key="version"
         android:title="@string/pref_version" />
+
+    <CheckBoxPreference
+        android:key="suppress_informal_rt"
+        android:title="@string/pref_suppress_informal_rt" />
+
+    <CheckBoxPreference
+        android:key="suppress_url"
+        android:title="@string/pref_suppress_url" />
+
+    <CheckBoxPreference
+        android:key="suppress_lf"
+        android:title="@string/pref_suppress_lf" />
 </PreferenceScreen>

@@ -1,5 +1,7 @@
 package com.gmail.altakey.joanne.view;
 
+import java.util.regex.Pattern;
+
 public class Radio {
     private String mScreenName;
     private int mScreenNameColor;
@@ -9,6 +11,10 @@ public class Radio {
     private int mTextSize;
     private int mDuration;
     private boolean mIsError;
+
+    private static Pattern sEmptyPattern = Pattern.compile("^[\\s　]*$");
+    private static Pattern sTidyStage1Pattern = Pattern.compile("[\\s　]{2,}");
+    private static Pattern sTidyStage2Pattern = Pattern.compile("^[\\s　]+|[\\s　]+$");
 
     public int getScreenNameSize() {
         return mScreenNameSize;
@@ -76,5 +82,25 @@ public class Radio {
 
     public void setIsError(boolean isError) {
         mIsError = isError;
+    }
+
+    public boolean textContains(final String pat) {
+        return mText.contains(pat);
+    }
+
+    public boolean textContains(final Pattern pat) {
+        return pat.matcher(mText).find();
+    }
+
+    public void filterText(final Pattern pat, final String replacement) {
+        mText = pat.matcher(mText).replaceAll(replacement);
+    }
+
+    public void tidyText() {
+        mText = sTidyStage2Pattern.matcher(sTidyStage1Pattern.matcher(mText).replaceAll(" ")).replaceAll("");
+    }
+
+    public boolean isEmpty() {
+        return sEmptyPattern.matcher(mText).matches();
     }
 }
