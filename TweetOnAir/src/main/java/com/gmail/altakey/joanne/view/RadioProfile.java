@@ -89,23 +89,21 @@ public class RadioProfile {
                 return retweet();
             } else if (mRelation.isMe(status.getUser())) {
                 return retweeting();
-            } else {
-                return null;
             }
-        } else {
-            final Radio r = getRadio();
-            r.setScreenName(target.getUser().getScreenName());
-            r.setText(target.getText());
-            r.setScreenNameColor(getScreenNameColorOf(target.getUser()));
-
-            final String myScreenName = mRelation.getMyScreenName();
-            if (myScreenName != null) {
-                if (status.getText().contains(String.format("@%s", myScreenName))) {
-                    r.setTextColor(MENTION_COLOR);
-                }
-            }
-            return r;
         }
+
+        final Radio r = getRadio();
+        r.setScreenName(target.getUser().getScreenName());
+        r.setText(target.getText());
+        r.setScreenNameColor(getScreenNameColorOf(target.getUser()));
+
+        final String myScreenName = mRelation.getMyScreenName();
+        if (myScreenName != null) {
+            if (status.getText().contains(String.format("@%s", myScreenName))) {
+                r.setTextColor(MENTION_COLOR);
+            }
+        }
+        return r;
     }
 
     public Radio favorite(final User source, final User target) {
