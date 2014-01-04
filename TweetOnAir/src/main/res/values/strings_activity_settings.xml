@@ -2,9 +2,15 @@
     <string name="title_activity_settings">Settings</string>
     <string name="pref_header_general">General</string>
     <string name="pref_version">@string/app_name</string>
+    <string name="pref_call_sign">コールサイン</string>
+    <string name="pref_call_sign_buddy">僚機コールサイン</string>
+    <string name="pref_team_name">チーム名</string>
+    <string name="pref_team_name_english">チーム名（英語）</string>
     <string name="pref_suppress_informal_rt">非公式RT系を表示しない</string>
     <string name="pref_suppress_url">URLを隠す</string>
     <string name="pref_suppress_lf">改行を無視する</string>
     <string name="pref_suppress_mention">\@を隠す</string>
     <string name="pref_suppress_tag">#を隠す</string>
+    <string name="pref_default_team_name">トレーサー</string>
+    <string name="pref_default_team_name_english">Tracer</string>
 </resources>

@@ -5,6 +5,7 @@ import android.widget.Toast;
 import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
 
+import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.util.UserRelation;
 
 import java.util.regex.Pattern;
@@ -77,6 +78,60 @@ public class RadioProfile {
     public RadioProfile(final Context context, final TwitterStream stream) {
         mContext = context;
         mRelation = new UserRelation(context, stream);
+    }
+
+    private String getTeamName() {
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+        return pref.getString("team_name", mContext.getString(R.string.pref_default_team_name));
+    }
+
+    private String getTeamScreenName() {
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+        return pref.getString("team_name_english", mContext.getString(R.string.pref_default_team_name_english));
+    }
+
+    private String getScreenName() {
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+        final String sign = pref.getString("screen_name", "");
+        if ("".equals(sign)) {
+            return String.format("%s 1", getTeamScreenName());
+        } else {
+            return sign;
+        }
+    }
+
+    private String getBuddyScreenName() {
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+        final String sign = pref.getString("screen_name_buddy", "");
+        if ("".equals(sign)) {
+            return String.format("%s 2", getTeamScreenName());
+        } else {
+            return sign;
+        }
+    }
+
+    private String getCallsign() {
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+        final String sign = pref.getString("call_sign", "");
+        if ("".equals(sign)) {
+            return String.format("%s1", getTeamName());
+        } else {
+            return sign;
+        }
+    }
+
+    private String getBuddyCallsign() {
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+        final String sign = pref.getString("call_sign_buddy", "");
+        if ("".equals(sign)) {
+            return String.format("%s2", getTeamName());
+        } else {
+            return sign;
+        }
+    }
+
+    private String getAWACSScreenName() {
+        return "AWACS";
     }
 
     private Radio getRadio() {
@@ -154,9 +209,9 @@ public class RadioProfile {
     public Radio favorite(final User source, final User target) {
         if (mRelation.isMe(target)) {
             final Radio r = getRadio();
-            r.setScreenName(FAVORITE_SCREENNAME);
-            r.setText(FAVORITE_TEXT);
-            r.setScreenNameColor(FAVORITE_COLOR);
+            r.setScreenName(getBuddyScreenName());
+            r.setText("favったか");
+            r.setScreenNameColor(COLOR_BUDDY);
             return filter(r);
         } else {
             return null;
@@ -165,40 +220,40 @@ public class RadioProfile {
 
     public Radio retweet() {
         final Radio r = getRadio();
-        r.setScreenName(RETWEET_SCREENNAME);
-        r.setText(RETWEET_TEXT);
-        r.setScreenNameColor(RETWEET_COLOR);
+        r.setScreenName(getBuddyScreenName());
+        r.setText("注意 拡散されているぞ");
+        r.setScreenNameColor(COLOR_BUDDY);
         return filter(r);
     }
 
     public Radio retweeting() {
         final Radio r = getRadio();
-        r.setScreenName(RETWEETING_SCREENNAME);
-        r.setText(RETWEETING_TEXT);
-        r.setScreenNameColor(RETWEETING_COLOR);
+        r.setScreenName(getAWACSScreenName());
+        r.setText("拡散 拡散");
+        r.setScreenNameColor(COLOR_FRIEND);
         return filter(r);
     }
 
     public Radio deletion() {
         final Radio r = getRadio();
-        r.setScreenName(DELETE_SCREENNAME);
-        r.setText(DELETE_TEXT);
-        r.setScreenNameColor(DELETE_COLOR);
+        r.setScreenName(getAWACSScreenName());
+        r.setText("消滅 消滅");
+        r.setScreenNameColor(COLOR_FRIEND);
         return filter(r);
     }
 
     public Radio follow(final User source, final User target) {
         if (mRelation.isMe(source)) {
             final Radio r = getRadio();
-            r.setScreenName(FOLLOWING_SCREENNAME);
-            r.setText(FOLLOWING_TEXT);
-            r.setScreenNameColor(FOLLOWING_COLOR);
+            r.setScreenName(getAWACSScreenName());
+            r.setText("レーダーロック");
+            r.setScreenNameColor(COLOR_FRIEND);
             return filter(r);
         } else if (mRelation.isMe(target)) {
             final Radio r = getRadio();
-            r.setScreenName(FOLLOW_SCREENNAME);
-            r.setText(FOLLOW_TEXT);
-            r.setScreenNameColor(FOLLOW_COLOR);
+            r.setScreenName(getBuddyScreenName());
+            r.setText("注意 敵にロックされている");
+            r.setScreenNameColor(COLOR_BUDDY);
             return filter(r);
         } else {
             return null;
@@ -208,9 +263,9 @@ public class RadioProfile {
     public Radio block(final User source, final User target) {
         if (mRelation.isMe(source)) {
             final Radio r = getRadio();
-            r.setScreenName(BLOCKING_SCREENNAME);
-            r.setText(BLOCKING_TEXT);
-            r.setScreenNameColor(BLOCKING_COLOR);
+            r.setScreenName(getBuddyScreenName());
+            r.setText("撃墜確認 いいぞ");
+            r.setScreenNameColor(COLOR_BUDDY);
             return filter(r);
         } else {
             return null;
@@ -220,9 +275,9 @@ public class RadioProfile {
     public Radio listed(final User source, final User target) {
         if (mRelation.isMe(target)) {
             final Radio r = getRadio();
-            r.setScreenName(LISTED_SCREENNAME);
-            r.setText(LISTED_TEXT);
-            r.setScreenNameColor(LISTED_COLOR);
+            r.setScreenName(getBuddyScreenName());
+            r.setText("注意 レーダー照射を受けている");
+            r.setScreenNameColor(COLOR_BUDDY);
             return filter(r);
         } else {
             return null;
@@ -232,9 +287,9 @@ public class RadioProfile {
     public Radio unlisted(final User source, final User target) {
         if (mRelation.isMe(target)) {
             final Radio r = getRadio();
-            r.setScreenName(UNLISTED_SCREENNAME);
-            r.setText(UNLISTED_TEXT);
-            r.setScreenNameColor(UNLISTED_COLOR);
+            r.setScreenName(getAWACSScreenName());
+            r.setText(String.format("%s レーダーを回避", getCallsign()));
+            r.setScreenNameColor(COLOR_FRIEND);
             return filter(r);
         } else {
             return null;
@@ -243,18 +298,18 @@ public class RadioProfile {
     
     public Radio ready() {
         final Radio r = getRadio();
-        r.setScreenName(READY_SCREENNAME);
-        r.setText(READY_TEXT);
-        r.setScreenNameColor(READY_COLOR);
+        r.setScreenName(getAWACSScreenName());
+        r.setText("全機 聞こえるか");
+        r.setScreenNameColor(COLOR_FRIEND);
         return filter(r);
     }
 
     public Radio error() {
         final Radio r = getRadio();
         r.setIsError(true);
-        r.setScreenName(ERROR_SCREENNAME);
-        r.setText(ERROR_TEXT);
-        r.setScreenNameColor(ERROR_COLOR);
+        r.setScreenName(getBuddyScreenName());
+        r.setText("無線不調 無線不調");
+        r.setScreenNameColor(COLOR_BUDDY);
         return filter(r);
     }
 
