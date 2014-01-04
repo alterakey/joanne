@@ -13,9 +13,9 @@ public class Radio {
     private int mDuration;
     private boolean mIsError;
 
-    private static Pattern sEmptyPattern = Pattern.compile("^[\\s　]*$");
-    private static Pattern sTidyStage1Pattern = Pattern.compile("[\\s　]{2,}");
-    private static Pattern sTidyStage2Pattern = Pattern.compile("^[\\s　]+|[\\s　]+$");
+    private static Pattern sEmptyPattern = Pattern.compile("^(\\s|　)*$");
+    private static Pattern sTidyStage1Pattern = Pattern.compile("(\\s|　){2,}");
+    private static Pattern sTidyStage2Pattern = Pattern.compile("^(\\s|　)+|(\\s|　)+$");
 
     public int getScreenNameSize() {
         return mScreenNameSize;
@@ -103,7 +103,7 @@ public class Radio {
 
     public void tidyText(final String nullText) {
         if (nullText != null) {
-            mText = Pattern.compile(String.format("(%s[\\s　]+)+([\\s　]+)?", Pattern.quote(nullText))).matcher(mText).replaceAll("$1");
+            mText = Pattern.compile(String.format("(%s(\\s|　)+)+((\\s|　)+)?", Pattern.quote(nullText))).matcher(mText).replaceAll("$1");
         }
         mText = sTidyStage2Pattern.matcher(sTidyStage1Pattern.matcher(mText).replaceAll(" ")).replaceAll("");
     }

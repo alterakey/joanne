@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:textStyle="bold"
-        joanne:outlineColor="#dd000000"
+        joanne:outlineColor="#aa000000"
         joanne:outlineWidth="2.5dp"
         />
     <com.gmail.altakey.joanne.view.OutlinedTextView
@@ -21,7 +21,7 @@
         android:gravity="center"
         android:textStyle="italic"
         android:textColor="@android:color/white"
-        joanne:outlineColor="#dd000000"
+        joanne:outlineColor="#aa000000"
         joanne:outlineWidth="2.5dp"
         />
 </LinearLayout>
