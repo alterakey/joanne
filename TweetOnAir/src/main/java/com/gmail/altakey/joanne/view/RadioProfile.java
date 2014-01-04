@@ -90,16 +90,29 @@ public class RadioProfile {
 
     private Radio filter(final Radio r) {
         if (r != null) {
+            final String NULL_TOKEN = String.format(" %s ", NULL_TEXT);
+            boolean needTidy = false;
             if (readBooleanPreference("suppress_informal_rt")) {
-                r.filterText(Pattern.compile("(^|[\\s　]+)[RQ]T[\\s　]+.*$"), NULL_TEXT);
-                r.tidyText();
+                r.filterText(Pattern.compile("(^|[\\s　]+)[RQ]T[\\s　]+.*$"), NULL_TOKEN);
+                needTidy = true;
             }
             if (readBooleanPreference("suppress_url")) {
-                r.filterText(Pattern.compile("(^|[\\s　]+)https?://[^ ]+?([\\s　]+|$)"), NULL_TEXT);
-                r.tidyText();
+                r.filterText(Pattern.compile("(^|[\\s　]+)https?://[^ ]+?([\\s　]+|$)"), NULL_TOKEN);
+                needTidy = true;
             }
             if (readBooleanPreference("suppress_lf")) {
                 r.filterText(Pattern.compile("\\n"), "");
+            }
+            if (readBooleanPreference("suppress_mention")) {
+                r.filterText(Pattern.compile("@[^ ]+?([\\s　]+|$)"), NULL_TOKEN);
+                needTidy = true;
+            }
+            if (readBooleanPreference("suppress_tag")) {
+                r.filterText(Pattern.compile("(^|[\\s　]+)#[^ ]+?([\\s　]+|$)"), NULL_TOKEN);
+                needTidy = true;
+            }
+            if (needTidy) {
+                r.tidyText(NULL_TEXT);
             }
             return r.isEmpty() ? nullify(r) : r;
         } else {

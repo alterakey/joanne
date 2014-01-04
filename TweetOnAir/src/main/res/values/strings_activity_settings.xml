@@ -5,4 +5,6 @@
     <string name="pref_suppress_informal_rt">非公式RT系を表示しない</string>
     <string name="pref_suppress_url">URLを隠す</string>
     <string name="pref_suppress_lf">改行を無視する</string>
+    <string name="pref_suppress_mention">\@を隠す</string>
+    <string name="pref_suppress_tag">#を隠す</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.gmail.altakey.joanne.view;
 
 import java.util.regex.Pattern;
+import android.util.Log;
 
 public class Radio {
     private String mScreenName;
@@ -97,6 +98,13 @@ public class Radio {
     }
 
     public void tidyText() {
+        tidyText(null);
+    }
+
+    public void tidyText(final String nullText) {
+        if (nullText != null) {
+            mText = Pattern.compile(String.format("(%s[\\s　]+)+([\\s　]+)?", Pattern.quote(nullText))).matcher(mText).replaceAll("$1");
+        }
         mText = sTidyStage2Pattern.matcher(sTidyStage1Pattern.matcher(mText).replaceAll(" ")).replaceAll("");
     }
 
