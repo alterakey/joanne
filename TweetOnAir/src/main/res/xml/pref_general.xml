@@ -4,6 +4,10 @@
         android:key="version"
         android:title="@string/pref_version" />
 
+    <Preference
+        android:key="channel_header"
+        android:title="@string/pref_channel" />
+
     <CheckBoxPreference
         android:key="suppress_informal_rt"
         android:title="@string/pref_suppress_informal_rt" />

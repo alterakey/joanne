@@ -10,4 +10,5 @@
     <string name="stop">stop</string>
     <string name="start">start</string>
     <string name="terminate_in_progress">Quit in progress...</string>
+    <string name="title_activity_settings_channel">Channels</string>
 </resources>

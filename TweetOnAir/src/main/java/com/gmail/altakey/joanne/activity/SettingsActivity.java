@@ -2,6 +2,7 @@ package com.gmail.altakey.joanne.activity;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -34,6 +35,15 @@ public class SettingsActivity extends PreferenceActivity {
 
         addPreferencesFromResource(R.xml.pref_general);
         bindPreferenceSummaryToValue(findPreference("version"));
+        findPreference("channel_header").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                final Context c = SettingsActivity.this;
+                final Intent intent = new Intent(c, SettingsChannelActivity.class);
+                c.startActivity(intent);
+                return true;
+            }
+        });
     }
 
     @Override
