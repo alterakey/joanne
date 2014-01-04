@@ -162,7 +162,7 @@ public class RadioProfile {
         if (mRelation.isMe(target)) {
             final Radio r = getRadio();
             r.setScreenName(getBuddyScreenName());
-            r.setText("favったか");
+            r.setText(mContext.getString(R.string.radio_favorite));
             r.setScreenNameColor(COLOR_BUDDY);
             return filter(r);
         } else {
@@ -173,7 +173,7 @@ public class RadioProfile {
     public Radio retweet() {
         final Radio r = getRadio();
         r.setScreenName(getBuddyScreenName());
-        r.setText("注意 拡散されているぞ");
+        r.setText(mContext.getString(R.string.radio_retweet));
         r.setScreenNameColor(COLOR_BUDDY);
         return filter(r);
     }
@@ -181,7 +181,7 @@ public class RadioProfile {
     public Radio retweeting() {
         final Radio r = getRadio();
         r.setScreenName(getAWACSScreenName());
-        r.setText("拡散 拡散");
+        r.setText(mContext.getString(R.string.radio_retweeting));
         r.setScreenNameColor(COLOR_FRIEND);
         return filter(r);
     }
@@ -189,7 +189,7 @@ public class RadioProfile {
     public Radio deletion() {
         final Radio r = getRadio();
         r.setScreenName(getAWACSScreenName());
-        r.setText("消滅 消滅");
+        r.setText(mContext.getString(R.string.radio_deletion));
         r.setScreenNameColor(COLOR_FRIEND);
         return filter(r);
     }
@@ -198,13 +198,13 @@ public class RadioProfile {
         if (mRelation.isMe(source)) {
             final Radio r = getRadio();
             r.setScreenName(getAWACSScreenName());
-            r.setText("レーダーロック");
+            r.setText(mContext.getString(R.string.radio_following));
             r.setScreenNameColor(COLOR_FRIEND);
             return filter(r);
         } else if (mRelation.isMe(target)) {
             final Radio r = getRadio();
             r.setScreenName(getBuddyScreenName());
-            r.setText("注意 敵にロックされている");
+            r.setText(mContext.getString(R.string.radio_follow));
             r.setScreenNameColor(COLOR_BUDDY);
             return filter(r);
         } else {
@@ -216,7 +216,7 @@ public class RadioProfile {
         if (mRelation.isMe(source)) {
             final Radio r = getRadio();
             r.setScreenName(getBuddyScreenName());
-            r.setText("撃墜確認 いいぞ");
+            r.setText(mContext.getString(R.string.radio_blocking));
             r.setScreenNameColor(COLOR_BUDDY);
             return filter(r);
         } else {
@@ -228,7 +228,7 @@ public class RadioProfile {
         if (mRelation.isMe(target)) {
             final Radio r = getRadio();
             r.setScreenName(getBuddyScreenName());
-            r.setText("注意 レーダー照射を受けている");
+            r.setText(mContext.getString(R.string.radio_listed));
             r.setScreenNameColor(COLOR_BUDDY);
             return filter(r);
         } else {
@@ -240,7 +240,7 @@ public class RadioProfile {
         if (mRelation.isMe(target)) {
             final Radio r = getRadio();
             r.setScreenName(getAWACSScreenName());
-            r.setText(String.format("%s レーダーを回避", getCallsign()));
+            r.setText(mContext.getString(R.string.radio_unlisted, getCallsign()));
             r.setScreenNameColor(COLOR_FRIEND);
             return filter(r);
         } else {
@@ -251,7 +251,7 @@ public class RadioProfile {
     public Radio ready() {
         final Radio r = getRadio();
         r.setScreenName(getAWACSScreenName());
-        r.setText("全機 聞こえるか");
+        r.setText(mContext.getString(R.string.radio_boot));
         r.setScreenNameColor(COLOR_FRIEND);
         return filter(r);
     }
@@ -260,7 +260,7 @@ public class RadioProfile {
         final Radio r = getRadio();
         r.setIsError(true);
         r.setScreenName(getBuddyScreenName());
-        r.setText("無線不調 無線不調");
+        r.setText(mContext.getString(R.string.radio_error));
         r.setScreenNameColor(COLOR_BUDDY);
         return filter(r);
     }

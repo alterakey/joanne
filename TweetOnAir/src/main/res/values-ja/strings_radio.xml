@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="radio_favorite">favったか</string>
+    <string name="radio_retweet">注意 拡散されているぞ</string>
+    <string name="radio_retweeting">拡散 拡散</string>
+    <string name="radio_deletion">消滅 消滅</string>
+    <string name="radio_following">レーダーロック</string>
+    <string name="radio_follow">注意 敵にロックされている</string>
+    <string name="radio_blocking">撃墜確認 いいぞ</string>
+    <string name="radio_listed">注意 レーダー照射を受けている</string>
+    <string name="radio_unlisted">%s レーダーを回避</string>
+    <string name="radio_boot">全機 聞こえるか</string>
+    <string name="radio_error">無線不調 無線不調</string>
+</resources>
