@@ -4,8 +4,8 @@
     <string name="radio_retweet">Warning, an enemy is RT-ing you</string>
     <string name="radio_retweeting">Retweet, retweet</string>
     <string name="radio_deletion">Target vanished</string>
-    <string name="radio_following">Locked in the radar</string>
-    <string name="radio_follow">Warning, an enemy has locked you in the radar</string>
+    <string name="radio_following">Locked on the target</string>
+    <string name="radio_follow">Warning, an enemy has locked you on the radar</string>
     <string name="radio_blocking">Good kill</string>
     <string name="radio_listed">Warning, an enemy has you on the radar</string>
     <string name="radio_unlisted">%s, evading enemy radar</string>
