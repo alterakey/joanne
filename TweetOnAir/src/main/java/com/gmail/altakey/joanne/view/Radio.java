@@ -1,7 +1,6 @@
 package com.gmail.altakey.joanne.view;
 
 import java.util.regex.Pattern;
-import android.util.Log;
 
 public class Radio {
     private String mScreenName;
