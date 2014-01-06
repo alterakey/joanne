@@ -16,9 +16,9 @@ import twitter4j.User;
 
 public class RadioProfile {
     private final static int COLOR_BUDDY = 0xff00ff00;
-    private final static int COLOR_FOE = 0xffff0000;
-    private final static int COLOR_FRIEND = 0xff8888ff;
-    private final static int COLOR_NEUTRAL = 0xffff8800;
+    public final static int COLOR_FOE = 0xffff0000;
+    public final static int COLOR_FRIEND = 0xff8888ff;
+    public final static int COLOR_NEUTRAL = 0xffff8800;
 
     private final static int TEXT_COLOR = 0xffffffff;
 

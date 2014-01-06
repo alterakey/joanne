@@ -1,0 +1,37 @@
+<resources>
+    <string-array name="pref_channel_labels">
+        <item>Friends</item>
+        <item>Followers</item>
+        <item>Mutual Followers</item>
+        <item>Others</item>
+    </string-array>
+    <string-array name="pref_channel_values">
+        <item>__friends__</item>
+        <item>__followers__</item>
+        <item>__mutual_followers__</item>
+        <item>__others__</item>
+    </string-array>
+    <string-array name="pref_color_values">
+        <item>friend</item>
+        <item>neutral</item>
+        <item>foe</item>
+    </string-array>
+    <string-array name="pref_color_labels">
+        <item>Friend</item>
+        <item>Neutral</item>
+        <item>Foe</item>
+    </string-array>
+    <string-array name="pref_channel_type_choices">
+        <item>All Friends</item>
+        <item>All Followers</item>
+        <item>All Mutual Followers</item>
+        <item>Contains Tag / Word</item>
+        <item>On List</item>
+        <item>Others</item>
+    </string-array>
+    <string-array name="pref_color_choices">
+        <item>Friend</item>
+        <item>Neutral</item>
+        <item>Foe</item>
+    </string-array>
+</resources>
