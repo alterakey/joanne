@@ -229,7 +229,7 @@ public class TweetBroadcastService extends Service {
         public void onFollow(final User source, final User target) {
             present(mProfile.follow(source, target));
             try {
-                TwitterAuthService.updateFriendsList(TweetBroadcastService.this, mStream.getOAuthAccessToken());
+                TwitterAuthService.updateRelations(TweetBroadcastService.this, mStream.getOAuthAccessToken());
             } catch (TwitterException e) {
                 Log.w("TBS", "cannot update friends list", e);
             }

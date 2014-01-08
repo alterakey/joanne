@@ -59,6 +59,7 @@ public class TwitterAuthService extends IntentService {
     public static final String KEY_TOKEN_SECRET = "token_secret";
     public static final String KEY_SCREEN_NAME = "screen_name";
     public static final String KEY_FRIENDS = "friends";
+    public static final String KEY_FOLLOWERS = "followers";
 
     public TwitterAuthService() {
         super("TwitterAuthService");
@@ -97,7 +98,7 @@ public class TwitterAuthService extends IntentService {
             }
         } else {
             Log.d("TAS", String.format("got access token: %s", accessToken.toString()));
-            updateFriendsList(this, accessToken);
+            updateRelations(this, accessToken);
 
             final Intent intent = new Intent(ACTION_AUTH_SUCCESS);
             intent.putExtra(EXTRA_TOKEN, accessToken);
@@ -110,7 +111,7 @@ public class TwitterAuthService extends IntentService {
             final AccessToken accessToken = tw.getOAuthAccessToken(verifier);
             Log.d("TAS", String.format("got access token: %s", accessToken.toString()));
             setAccessToken(accessToken);
-            updateFriendsList(this, accessToken);
+            updateRelations(this, accessToken);
 
             final Intent intent = new Intent(ACTION_AUTH_SUCCESS);
             intent.putExtra(EXTRA_TOKEN, accessToken);
@@ -144,16 +145,26 @@ public class TwitterAuthService extends IntentService {
             .commit();
     }
 
-    public static void updateFriendsList(final Context context, final AccessToken token) {
+    public static void updateRelations(final Context context, final AccessToken token) {
         final SharedPreferences prefs = context.getSharedPreferences(PREFERENCE, MODE_PRIVATE);
         try {
             final Twitter twitter = TwitterFactory.getSingleton();
             twitter.setOAuthAccessToken(token);
-            final Set<Long> set = new HashSet<Long>();
 
+            final Set<Long> friends = new HashSet<Long>();
             for (IDs ids = twitter.getFriendsIDs(-1); ; ids = twitter.getFriendsIDs(ids.getNextCursor())) {
                 for (Long id : ids.getIDs()) {
-                    set.add(id);
+                    friends.add(id);
+                }
+                if (!ids.hasNext()) {
+                    break;
+                }
+            }
+
+            final Set<Long> followers = new HashSet<Long>();
+            for (IDs ids = twitter.getFollowersIDs(-1); ; ids = twitter.getFollowersIDs(ids.getNextCursor())) {
+                for (Long id : ids.getIDs()) {
+                    followers.add(id);
                 }
                 if (!ids.hasNext()) {
                     break;
@@ -162,10 +173,12 @@ public class TwitterAuthService extends IntentService {
 
             prefs
                 .edit()
-                .putString(KEY_FRIENDS, new IdListCoder().encode(set))
+                .putString(KEY_FRIENDS, new IdListCoder().encode(friends))
+                .putString(KEY_FOLLOWERS, new IdListCoder().encode(followers))
                 .commit();
-            UserRelation.notifyFriendsChanged();
-            Log.d("TAS", String.format("got %d friends", set.size()));
+            UserRelation.notifyRelationsChanged();
+            Log.d("TAS", String.format("got %d friends", friends.size()));
+            Log.d("TAS", String.format("got %d followers", followers.size()));
         } catch (TwitterException e) {
             Log.w("TAS", "cannot get follower list", e);
         }

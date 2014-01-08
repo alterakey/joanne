@@ -20,6 +20,7 @@ public class UserRelation {
     private final TwitterStream mStream;
     private static String sCachedMyScreenName;
     private static Set<Long> sCachedFriends;
+    private static Set<Long> sCachedFollowers;
 
     public UserRelation(final TwitterStream target) {
         mContext = null;
@@ -83,9 +84,33 @@ public class UserRelation {
         }
     }
 
-    public static void notifyFriendsChanged() {
+    public boolean isFollower(final User user) {
+        return isFollower(null, user);
+    }
+
+    public boolean isFollower(final Context context, final User user) {
+        synchronized (sLock) {
+            if (sCachedFollowers == null) {
+                final Context c = context != null ? context : mContext;
+                final SharedPreferences pref = c.getSharedPreferences(TwitterAuthService.PREFERENCE, Context.MODE_PRIVATE);
+                sCachedFollowers = new IdListCoder().decode(pref.getString("followers", ""));
+            }
+            return sCachedFollowers.contains(user.getId());
+        }
+    }
+
+    public boolean isMutualFollower(final User user) {
+        return isMutualFollower(null, user);
+    }
+
+    public boolean isMutualFollower(final Context context, final User user) {
+        return isFriend(context, user) && isFollower(context, user);
+    }
+
+    public static void notifyRelationsChanged() {
         synchronized (sLock) {
             sCachedFriends = null;
+            sCachedFollowers = null;
         }
     }
 

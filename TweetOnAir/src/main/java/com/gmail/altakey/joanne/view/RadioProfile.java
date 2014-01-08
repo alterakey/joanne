@@ -153,6 +153,12 @@ public class RadioProfile {
         if (myScreenName != null) {
             if (status.getText().contains(String.format("@%s", myScreenName))) {
                 r.setTextColor(COLOR_BUDDY);
+
+                final User user = target.getUser();
+                if (!mRelation.isFriend(user) || !mRelation.isFollower(user)) {
+                    r.setTextColor(COLOR_FOE);
+                    r.setScreenNameColor(COLOR_FOE);
+                }
             }
         }
         return filter(r);
@@ -268,10 +274,12 @@ public class RadioProfile {
     private int getScreenNameColorOf(final User user) {
         if (mRelation.isMe(user)) {
             return COLOR_BUDDY;
-        } else if (mRelation.isFriend(user)) {
+        } else if (mRelation.isMutualFollower(user)) {
             return COLOR_FRIEND;
-        } else {
+        } else if (mRelation.isFriend(user) || mRelation.isFollower(user)) {
             return COLOR_NEUTRAL;
+        } else {
+            return COLOR_FOE;
         }
     }
 
