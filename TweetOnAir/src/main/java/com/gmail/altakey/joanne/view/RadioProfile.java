@@ -149,15 +149,18 @@ public class RadioProfile {
         r.setText(target.getText());
         r.setScreenNameColor(getScreenNameColorOf(target.getUser()));
 
+        if (!mRelation.isFriend(target.getUser()) && !mRelation.isFollower(target.getUser())
+            && !mRelation.isFriend(status.getUser()) && !mRelation.isFollower(status.getUser())) {
+            r.setScreenNameColor(COLOR_FOE);
+        }
+
         final String myScreenName = mRelation.getMyScreenName();
         if (myScreenName != null) {
-            if (status.getText().contains(String.format("@%s", myScreenName))) {
-                r.setTextColor(COLOR_BUDDY);
+            final int screenNameColor = r.getScreenNameColor();
 
-                final User user = target.getUser();
-                if (!mRelation.isFriend(user) || !mRelation.isFollower(user)) {
-                    r.setTextColor(COLOR_FOE);
-                    r.setScreenNameColor(COLOR_FOE);
+            if (!status.isRetweet()) {
+                if (status.getText().contains(String.format("@%s", myScreenName))) {
+                    r.setTextColor(screenNameColor);
                 }
             }
         }
@@ -276,10 +279,8 @@ public class RadioProfile {
             return COLOR_BUDDY;
         } else if (mRelation.isMutualFollower(user)) {
             return COLOR_FRIEND;
-        } else if (mRelation.isFriend(user) || mRelation.isFollower(user)) {
-            return COLOR_NEUTRAL;
         } else {
-            return COLOR_FOE;
+            return COLOR_NEUTRAL;
         }
     }
 
