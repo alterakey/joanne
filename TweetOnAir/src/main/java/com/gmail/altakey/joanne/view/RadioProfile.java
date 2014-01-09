@@ -145,19 +145,20 @@ public class RadioProfile {
         }
 
         final Radio r = getRadio();
+        int screenNameColor = getScreenNameColorOf(target.getUser());
         r.setScreenName(target.getUser().getScreenName());
         r.setText(target.getText());
-        r.setScreenNameColor(getScreenNameColorOf(target.getUser()));
 
-        if (!mRelation.isFriend(target.getUser()) && !mRelation.isFollower(target.getUser())
-            && !mRelation.isFriend(status.getUser()) && !mRelation.isFollower(status.getUser())) {
-            r.setScreenNameColor(COLOR_FOE);
+        if (screenNameColor == COLOR_NEUTRAL) {
+            if (!mRelation.isFriend(target.getUser()) && !mRelation.isFollower(target.getUser())
+                && !mRelation.isFriend(status.getUser()) && !mRelation.isFollower(status.getUser())) {
+                screenNameColor = COLOR_FOE;
+            }
         }
+        r.setScreenNameColor(screenNameColor);
 
         final String myScreenName = mRelation.getMyScreenName();
         if (myScreenName != null) {
-            final int screenNameColor = r.getScreenNameColor();
-
             if (!status.isRetweet()) {
                 if (status.getText().contains(String.format("@%s", myScreenName))) {
                     r.setTextColor(screenNameColor);
