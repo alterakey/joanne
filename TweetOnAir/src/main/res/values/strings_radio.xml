@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="radio_favorite">Aerm, favoring you? Fine...</string>
+    <string name="radio_favorite">Warning, incoming FAV</string>
+    <string name="radio_favoriting">%s, FOX 2</string>
     <string name="radio_retweet">Warning, an enemy is RT-ing you</string>
     <string name="radio_retweeting">Retweet, retweet</string>
     <string name="radio_deletion">Target vanished</string>

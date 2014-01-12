@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="radio_favorite">favったか</string>
+    <string name="radio_favorite">おい、FAV来てるぞ！</string>
+    <string name="radio_favoriting">%s フォックス2</string>
     <string name="radio_retweet">注意 拡散されているぞ</string>
     <string name="radio_retweeting">拡散 拡散</string>
     <string name="radio_deletion">消滅 消滅</string>

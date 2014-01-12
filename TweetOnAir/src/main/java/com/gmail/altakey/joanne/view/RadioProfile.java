@@ -175,6 +175,12 @@ public class RadioProfile {
             r.setText(mContext.getString(R.string.radio_favorite));
             r.setScreenNameColor(COLOR_BUDDY);
             return filter(r);
+        } else if (mRelation.isMe(source)) {
+            final Radio r = getRadio();
+            r.setScreenName(getAWACSScreenName());
+            r.setText(mContext.getString(R.string.radio_favoriting, getCallsign()));
+            r.setScreenNameColor(COLOR_FRIEND);
+            return filter(r);
         } else {
             return null;
         }
