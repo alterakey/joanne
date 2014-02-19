@@ -26,3 +26,8 @@ Build with Android Studio 0.4.0+.
  * Tweet display might be broken in non-Nexus devices; please drop a note if you encounter.
  * Building requires Android Studio.
  * Absolutely no instructions.
+
+3. ACKNOWLEDGEMENTS
+-------------------
+
+The icon is work of the design division of Monolith Works Inc.
