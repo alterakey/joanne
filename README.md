@@ -8,7 +8,7 @@ This is a joke Twitter client for Android 2.1 and up; it overlays your timeline 
 0. HOW TO BUILD
 ---------------
 
-Build with Android Studio 0.4.0+.
+Build with Android Studio 0.4.0+.  Remember to change the API keys (included ones are dummies.)
 
 1. FEATURES
 -----------
