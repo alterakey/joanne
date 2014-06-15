@@ -6,24 +6,6 @@ import scanner
 
 app = Flask(__name__)
 
-class DeviceDB(object):
-  def __init__(self):
-    self.db = dbm.open('devices', 'c')
-
-  def __enter__(self):
-    pass
-
-  def __exit__(self):
-    self.db.close()
-
-@app.route('/<regid>', methods=['GET'])
-def get_tokens(regid):
-  db = dbm.open('devices', 'c')
-  try:
-    return db.get(regid, b'[]').decode()
-  finally:
-    db.close()
-
 @app.route('/<regid>', methods=['PUT'])
 def register_device(regid):
   db = dbm.open('devices', 'c')
