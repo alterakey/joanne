@@ -14,6 +14,7 @@ import twitter4j.User;
 import twitter4j.auth.AccessToken;
 
 public class UserRelation {
+    private static final String TAG = "UR";
     private static final Object sLock = new Object();
 
     private final Context mContext;
@@ -37,7 +38,7 @@ public class UserRelation {
             try {
                 return user.getId() == getToken().getUserId();
             } catch (TwitterException e) {
-                Log.e("SL", "got exception while testing user identity", e);
+                Log.e(TAG, "got exception while testing user identity", e);
                 return false;
             }
         } else {
@@ -64,7 +65,7 @@ public class UserRelation {
             }
             return sCachedMyScreenName;
         } catch (TwitterException e) {
-            Log.e("SL", "got exception while testing user identity", e);
+            Log.e(TAG, "got exception while testing user identity", e);
             return null;
         }
     }

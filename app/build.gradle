@@ -34,6 +34,6 @@ android {
 dependencies {
     compile 'com.android.support:support-v4:19.1.0'
     compile 'com.android.support:appcompat-v7:19.1.0'
-    compile 'org.twitter4j:twitter4j-core:3.0.6'
-    compile 'org.twitter4j:twitter4j-stream:3.0.6'
+    compile 'org.twitter4j:twitter4j-core:4.0.2'
+    compile 'org.twitter4j:twitter4j-stream:4.0.2'
 }

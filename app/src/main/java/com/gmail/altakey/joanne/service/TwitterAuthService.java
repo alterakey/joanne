@@ -46,6 +46,8 @@ import twitter4j.auth.RequestToken;
  
 /* Please set your apps' callback URL to somewhere in your domain, like "http://(codename).apps.example.com/" */
 public class TwitterAuthService extends IntentService {
+    private static final String TAG = "TAS";
+    
     public static final String ACTION_AUTH = "AUTH";
     public static final String ACTION_AUTH_VERIFY = "AUTH_VERIFY";
     public static final String ACTION_AUTH_SUCCESS = "AUTH_SUCCESS";
@@ -94,10 +96,10 @@ public class TwitterAuthService extends IntentService {
                 intent.setData(Uri.parse(req.getAuthorizationURL()));
                 startActivity(intent);
             } catch (TwitterException e) {
-                Log.e("TAS", "authentication failure", e);
+                Log.e(TAG, "authentication failure", e);
             }
         } else {
-            Log.d("TAS", String.format("got access token: %s", accessToken.toString()));
+            Log.d(TAG, String.format("got access token: %s", accessToken.toString()));
             updateRelations(this, accessToken);
 
             final Intent intent = new Intent(ACTION_AUTH_SUCCESS);
@@ -109,7 +111,7 @@ public class TwitterAuthService extends IntentService {
     private void authenticateDone(final Twitter tw, final String verifier) {
         try {
             final AccessToken accessToken = tw.getOAuthAccessToken(verifier);
-            Log.d("TAS", String.format("got access token: %s", accessToken.toString()));
+            Log.d(TAG, String.format("got access token: %s", accessToken.toString()));
             setAccessToken(accessToken);
             updateRelations(this, accessToken);
 
@@ -117,7 +119,7 @@ public class TwitterAuthService extends IntentService {
             intent.putExtra(EXTRA_TOKEN, accessToken);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         } catch (TwitterException e) {
-            Log.e("TAS", "authentication failure", e);
+            Log.e(TAG, "authentication failure", e);
 
             final Intent intent = new Intent(ACTION_AUTH_FAIL);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -177,10 +179,10 @@ public class TwitterAuthService extends IntentService {
                 .putString(KEY_FOLLOWERS, new IdListCoder().encode(followers))
                 .commit();
             UserRelation.notifyRelationsChanged();
-            Log.d("TAS", String.format("got %d friends", friends.size()));
-            Log.d("TAS", String.format("got %d followers", followers.size()));
+            Log.d(TAG, String.format("got %d friends", friends.size()));
+            Log.d(TAG, String.format("got %d followers", followers.size()));
         } catch (TwitterException e) {
-            Log.w("TAS", "cannot get follower list", e);
+            Log.w(TAG, "cannot get follower list", e);
         }
     }
 
@@ -205,7 +207,7 @@ public class TwitterAuthService extends IntentService {
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     final Pattern pat = Pattern.compile("\\?.*oauth_verifier=([a-zA-Z0-9]+)");
                     final Matcher m = pat.matcher(url);
-                    Log.d("TAS", String.format("url: %s", url));
+                    Log.d(TAG, String.format("url: %s", url));
                     if (m.find()) {
                         final String verifier = m.group(1);
                         final Intent verifyIntent = new Intent(AuthorizeActivity.this, TwitterAuthService.class);

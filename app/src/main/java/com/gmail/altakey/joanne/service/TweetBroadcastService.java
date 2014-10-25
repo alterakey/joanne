@@ -34,10 +34,13 @@ import twitter4j.TwitterStreamFactory;
 import twitter4j.User;
 import twitter4j.UserList;
 import twitter4j.UserStreamListener;
+import twitter4j.FilterQuery;
 import twitter4j.auth.AccessToken;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class TweetBroadcastService extends Service {
+    private static final String TAG = "TBS";
+    
     public static final String ACTION_START = "ACTION_START";
     public static final String ACTION_QUIT = "ACTION_QUIT";
     public static final String ACTION_STATE_CHANGED = "ACTION_STATE_CHANGED";
@@ -114,22 +117,8 @@ public class TweetBroadcastService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
-        final String action = intent.getAction();
-        if (ACTION_START.equals(action)) {
-            if (mStream == null) {
-                final AccessToken accessToken = (AccessToken)intent.getSerializableExtra(EXTRA_TOKEN);
-                final ConfigurationBuilder builder = new ConfigurationBuilder();
-                builder.setOAuthConsumerKey(getString(R.string.consumer_key));
-                builder.setOAuthConsumerSecret(getString(R.string.consumer_secret));
-                mStream = new TwitterStreamFactory(builder.build()).getInstance(accessToken);
-                mProfile = new RadioProfile(getApplicationContext(), mStream);
-                
-                mStream.addListener(new StreamListener());
-                mStream.user();
-
-                present(mProfile.ready());
-            }
-        } else if (ACTION_QUIT.equals(action)) {
+        final String action = (intent != null) ? intent.getAction() : null;
+        if (ACTION_QUIT.equals(action)) {
             new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected void onPreExecute() {
@@ -153,6 +142,23 @@ public class TweetBroadcastService extends Service {
                     stopSelf(startId);
                 }
             }.execute();
+        } else {
+            if (mStream == null) {
+                final AccessToken accessToken = (AccessToken)intent.getSerializableExtra(EXTRA_TOKEN);
+                final ConfigurationBuilder builder = new ConfigurationBuilder();
+                builder.setOAuthConsumerKey(getString(R.string.consumer_key));
+                builder.setOAuthConsumerSecret(getString(R.string.consumer_secret));
+                mStream = new TwitterStreamFactory(builder.build()).getInstance(accessToken);
+                mProfile = new RadioProfile(getApplicationContext(), mStream);
+
+                mStream.addListener(new StreamListener());
+                //final FilterQuery q = new FilterQuery();
+                //q.track(new String[] { "#android" });
+                //mStream.filter(q);
+                mStream.user();
+
+                present(mProfile.ready());
+            }
         }
         return START_STICKY;
     }
@@ -207,7 +213,7 @@ public class TweetBroadcastService extends Service {
 
         @Override
         public void onException(Exception e) {
-            Log.w("SL", "got exception while tracing up stream", e);
+            Log.w(TAG, "got exception while tracing up stream", e);
             present(mProfile.error());
         }
 
@@ -231,8 +237,12 @@ public class TweetBroadcastService extends Service {
             try {
                 TwitterAuthService.updateRelations(TweetBroadcastService.this, mStream.getOAuthAccessToken());
             } catch (TwitterException e) {
-                Log.w("TBS", "cannot update friends list", e);
+                Log.w(TAG, "cannot update friends list", e);
             }
+        }
+
+        @Override
+        public void onUnfollow(final User source, final User target) {
         }
 
         @Override
