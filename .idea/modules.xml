@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/TweetOnAir/TweetOnAir.iml" filepath="$PROJECT_DIR$/TweetOnAir/TweetOnAir.iml" />
-      <module fileurl="file://$PROJECT_DIR$/TweetOnAirProject.iml" filepath="$PROJECT_DIR$/TweetOnAirProject.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wc.iml" filepath="$PROJECT_DIR$/wc.iml" />
     </modules>
   </component>
 </project>
