@@ -123,7 +123,11 @@ public class SendFragment extends Fragment {
                 hideProcessingDialog();
                 final Activity activity = getActivity();
                 if (activity != null) {
-                    activity.finish();
+                    if (intent.getBooleanExtra(TweetService.EXTRA_SUCCESS, true)) {
+                        activity.finish();
+                    } else {
+                        Toast.makeText(activity, intent.getStringExtra(TweetService.EXTRA_MESSAGE), Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         }

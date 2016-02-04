@@ -26,6 +26,7 @@ import com.gmail.altakey.joanne.view.TweetDisplayBuilder;
 import java.util.Date;
 
 import twitter4j.DirectMessage;
+import twitter4j.RateLimitStatus;
 import twitter4j.StallWarning;
 import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;
@@ -47,6 +48,9 @@ public class TweetService extends IntentService {
     public static final String EXTRA_STATUS = "status";
     public static final String EXTRA_TOKEN = TwitterAuthService.EXTRA_TOKEN;
 
+    public static final String EXTRA_SUCCESS = "success";
+    public static final String EXTRA_MESSAGE = "message";
+
     private static final String TAG = TweetService.class.getSimpleName();
     private static final String NAME = "TweetService";
 
@@ -62,14 +66,28 @@ public class TweetService extends IntentService {
         builder.setOAuthConsumerKey(getString(R.string.consumer_key));
         builder.setOAuthConsumerSecret(getString(R.string.consumer_secret));
 
+        final Intent i = new Intent(ACTION_DONE);
         try {
             try {
                 new TwitterFactory(builder.build()).getInstance(accessToken).updateStatus(status);
+                i.putExtra(EXTRA_SUCCESS, true);
             } catch (TwitterException e) {
                 Log.e(TAG, "got exception on tweet", e);
+
+                final RateLimitStatus ratelimit = e.getRateLimitStatus();
+
+                i.putExtra(EXTRA_SUCCESS, false);
+                if (ratelimit != null) {
+                    i.putExtra(EXTRA_MESSAGE, String.format("%s (%ds to reset)", e.getErrorMessage(), ratelimit.getSecondsUntilReset()));
+                } else {
+                    if (e.isErrorMessageAvailable()) {
+                        i.putExtra(EXTRA_MESSAGE, e.getErrorMessage());
+                    } else {
+                        i.putExtra(EXTRA_MESSAGE, "radio failure, please try again");
+                    }
+                }
             }
         } finally {
-            final Intent i = new Intent(ACTION_DONE);
             LocalBroadcastManager.getInstance(this).sendBroadcast(i);
         }
     }
