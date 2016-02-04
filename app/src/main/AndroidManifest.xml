@@ -24,8 +24,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.gmail.altakey.joanne.activity.SendActivity"
+            android:label="Transmit" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
+        </activity>
         <activity android:name="com.gmail.altakey.joanne.service.TwitterAuthService$AuthorizeActivity" />
 
+        <service android:name="com.gmail.altakey.joanne.service.TweetService" />
         <service android:name="com.gmail.altakey.joanne.service.TwitterAuthService" />
         <service android:name="com.gmail.altakey.joanne.service.TweetBroadcastService" />
 

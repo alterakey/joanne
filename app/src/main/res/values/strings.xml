@@ -3,8 +3,8 @@
 
     <string name="app_name">tweets.on.air</string>
     <string name="action_settings">Settings</string>
-    <string name="consumer_key">XnNKSZ2LHPmb7yol1XuyHQ</string>
-    <string name="consumer_secret">bXE50Qk92QsaT3YiuE61ZT5GXcATgP56nMHMpcY71w</string>
+    <string name="consumer_key">o18Ktcwzeb09fypG3HSuvB18H</string>
+    <string name="consumer_secret">7Zc4gfER8UetdvWJzsy1Mkt9CZbZhJtAgqGw36WXVvZK5sCE3B</string>
     <string name="auth_failure">Authentication failure</string>
     <string name="terminating">Quitting</string>
     <string name="stop">stop</string>
