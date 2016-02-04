@@ -28,6 +28,8 @@ import com.gmail.altakey.joanne.service.TweetBroadcastService;
 import com.gmail.altakey.joanne.service.TweetService;
 import com.gmail.altakey.joanne.service.TwitterAuthService;
 
+import java.util.regex.Pattern;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -86,6 +88,12 @@ public class SendFragment extends Fragment {
         }
     }
 
+    // XXX crude detection
+    private int estimatedPostLength(final String body) {
+        return Pattern.compile("https?://[^ ]+").matcher(body).replaceAll("https://t.co/XXXXXXXXXX").length();
+    }
+
+
     private class TextChangedListener implements TextWatcher {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -94,7 +102,7 @@ public class SendFragment extends Fragment {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            final int remaining = Math.max(0, 140-mText.getText().length());
+            final int remaining = Math.max(0, 140-estimatedPostLength(mText.getText().toString()));
             mCharsRemaining.setText(String.valueOf(remaining));
             mTransmit.setEnabled(remaining > 0);
         }
