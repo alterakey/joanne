@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gmail.altakey.joanne.R;
+import com.gmail.altakey.joanne.hack.Maybe;
 import com.gmail.altakey.joanne.service.TweetBroadcastService;
 import com.gmail.altakey.joanne.service.TweetService;
 import com.gmail.altakey.joanne.service.TwitterAuthService;
@@ -44,13 +45,15 @@ public class SendFragment extends Fragment {
     TextView mCharsRemaining;
 
     private static final String TAG = SendFragment.class.getSimpleName();
-    private static final String KEY_TEXT = "text";
+    private static final String KEY_SUBJECT = "text";
+    private static final String KEY_URI = "uri";
 
     public static SendFragment call(final Intent intent) {
         final SendFragment f = new SendFragment();
         final Bundle args = new Bundle();
         f.setArguments(args);
-        args.putString(KEY_TEXT, String.format(" / %s / %s", intent.getStringExtra(Intent.EXTRA_SUBJECT), intent.getStringExtra(Intent.EXTRA_TEXT)));
+        args.putString(KEY_SUBJECT, intent.getStringExtra(Intent.EXTRA_SUBJECT));
+        args.putString(KEY_URI, intent.getStringExtra(Intent.EXTRA_TEXT));
         return f;
     }
 
@@ -71,8 +74,16 @@ public class SendFragment extends Fragment {
             }
         });
 
-        mText.setText(getArguments().getString(KEY_TEXT));
+        mText.setText(formatted(getArguments()));
         return v;
+    }
+
+    private String formatted(final Bundle args) {
+        try {
+            return String.format(" / %s %s", Maybe.get(args.getString(KEY_SUBJECT)), args.getString(KEY_URI));
+        } catch (Maybe.NoSuchValueException e) {
+            return String.format(" / %s", args.getString(KEY_URI));
+        }
     }
 
     private class TextChangedListener implements TextWatcher {
