@@ -50,7 +50,7 @@ public class SendFragment extends Fragment {
         final SendFragment f = new SendFragment();
         final Bundle args = new Bundle();
         f.setArguments(args);
-        args.putString(KEY_TEXT, intent.getStringExtra(Intent.EXTRA_TEXT));
+        args.putString(KEY_TEXT, String.format(" / %s / %s", intent.getStringExtra(Intent.EXTRA_SUBJECT), intent.getStringExtra(Intent.EXTRA_TEXT)));
         return f;
     }
 
