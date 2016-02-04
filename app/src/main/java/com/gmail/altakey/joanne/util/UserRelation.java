@@ -23,11 +23,6 @@ public class UserRelation {
     private static Set<Long> sCachedFriends;
     private static Set<Long> sCachedFollowers;
 
-    public UserRelation(final TwitterStream target) {
-        mContext = null;
-        mStream = target;
-    }
-
     public UserRelation(final Context context, final TwitterStream target) {
         mContext = context;
         mStream = target;

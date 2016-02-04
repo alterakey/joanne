@@ -60,9 +60,7 @@ public class WelcomeFragment extends Fragment {
         final View v = inflater.inflate(R.layout.fragment_welcome, container, false);
         final TextView proceed = (TextView)v.findViewById(R.id.auth);
         updateTitle(v);
-        proceed.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
+        proceed.setOnClickListener(view -> {
                 final Context c = getActivity();
                 if (c != null) {
                     showProcessingDialog();
@@ -75,7 +73,7 @@ public class WelcomeFragment extends Fragment {
                     }
                 }
             }
-        });
+        );
         return v;
     }
 
