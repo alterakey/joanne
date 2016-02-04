@@ -64,7 +64,7 @@ public class TwitterAuthService extends IntentService {
     public static final String KEY_FOLLOWERS = "followers";
 
     public TwitterAuthService() {
-        super("TwitterAuthService");
+        super(TwitterAuthService.class.getSimpleName());
     }
  
     @Override

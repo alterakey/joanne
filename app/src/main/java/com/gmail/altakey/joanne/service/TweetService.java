@@ -46,9 +46,7 @@ public class TweetService extends IntentService {
 
     public static final String EXTRA_STATUS = "status";
     public static final String EXTRA_TOKEN = TwitterAuthService.EXTRA_TOKEN;
-    public static final String TWITTER_URL = "https://twitter.com/";
 
-    private static Handler sHandler = new Handler();
     private static final String TAG = TweetService.class.getSimpleName();
     private static final String NAME = "TweetService";
 
