@@ -3,8 +3,10 @@ package com.gmail.altakey.joanne.service;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
@@ -16,6 +18,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.gmail.altakey.joanne.Attachable;
+import com.gmail.altakey.joanne.ConnectivityPolicy;
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.activity.MainActivity;
 import com.gmail.altakey.joanne.view.Radio;
@@ -50,6 +54,7 @@ public class TweetBroadcastService extends Service {
 
     public static boolean sActive = false;
     private static Handler sHandler = new Handler();
+    private Attachable mControlMessageReceiver = new ControlMessageReceiver();
 
     private TwitterStream mStream;
     private RadioProfile mProfile;
@@ -103,10 +108,12 @@ public class TweetBroadcastService extends Service {
 
         sActive = true;
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_STATE_CHANGED));
+        mControlMessageReceiver.attachTo(this);
     }
 
     @Override
     public void onDestroy() {
+        mControlMessageReceiver.detachFrom(this);
         sActive = false;
     }
 
@@ -188,6 +195,38 @@ public class TweetBroadcastService extends Service {
                     .setContentInfo(radio.getScreenName())
                     .setWhen(new Date().getTime())
                     .build());
+        }
+    }
+
+    private class ControlMessageReceiver extends BroadcastReceiver implements Attachable {
+        @Override
+        public void attachTo(Context c) {
+            final IntentFilter f = new IntentFilter();
+            f.addAction(ConnectivityPolicy.ACTION_CONNECT);
+            f.addAction(ConnectivityPolicy.ACTION_DISCONNECT);
+            LocalBroadcastManager.getInstance(c).registerReceiver(this, f);
+        }
+
+        @Override
+        public void detachFrom(Context c) {
+            LocalBroadcastManager.getInstance(c).unregisterReceiver(this);
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mStream != null) {
+                switch (intent.getAction()) {
+                    case ConnectivityPolicy.ACTION_DISCONNECT:
+                        Log.d(TAG, "pausing connection");
+                        mStream.shutdown();
+                        break;
+                    case ConnectivityPolicy.ACTION_CONNECT:
+                        Log.d(TAG, "resuming connection");
+                        mStream.user();
+                        present(mProfile.ready());
+                        break;
+                }
+            }
         }
     }
 

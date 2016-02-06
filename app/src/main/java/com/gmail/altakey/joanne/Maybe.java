@@ -1,4 +1,4 @@
-package com.gmail.altakey.joanne.hack;
+package com.gmail.altakey.joanne;
 
 import android.util.Log;
 import android.view.WindowManager;
