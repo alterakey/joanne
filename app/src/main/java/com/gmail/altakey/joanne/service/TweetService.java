@@ -17,6 +17,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.gmail.altakey.joanne.Joanne;
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.activity.MainActivity;
 import com.gmail.altakey.joanne.view.Radio;
@@ -42,11 +43,11 @@ import twitter4j.auth.AccessToken;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class TweetService extends IntentService {
-    public static final String ACTION_TWEET = "ACTION_TWEET";
+    private static final String ACTION_TWEET = "ACTION_TWEET";
     public static final String ACTION_DONE = "ACTION_DONE";
 
-    public static final String EXTRA_STATUS = "status";
-    public static final String EXTRA_TOKEN = TwitterAuthService.EXTRA_TOKEN;
+    private static final String EXTRA_STATUS = "status";
+    private static final String EXTRA_TOKEN = TwitterAuthService.EXTRA_TOKEN;
 
     public static final String EXTRA_SUCCESS = "success";
     public static final String EXTRA_MESSAGE = "message";
@@ -58,18 +59,23 @@ public class TweetService extends IntentService {
         super(NAME);
     }
 
+    public static Intent call(final String status, final AccessToken token) {
+        final Intent i = new Intent(TweetService.ACTION_TWEET);
+        i.setClass(Joanne.getInstance(), TweetService.class);
+        i.putExtra(TweetService.EXTRA_STATUS, status);
+        i.putExtra(TweetService.EXTRA_TOKEN, token);
+        return i;
+    }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         final String status = intent.getStringExtra(EXTRA_STATUS);
         final AccessToken accessToken = (AccessToken)intent.getSerializableExtra(EXTRA_TOKEN);
-        final ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.setOAuthConsumerKey(getString(R.string.consumer_key));
-        builder.setOAuthConsumerSecret(getString(R.string.consumer_secret));
 
         final Intent i = new Intent(ACTION_DONE);
         try {
             try {
-                new TwitterFactory(builder.build()).getInstance(accessToken).updateStatus(status);
+                TwitterAuthService.twitterWithAccessToken(accessToken).updateStatus(status);
                 i.putExtra(EXTRA_SUCCESS, true);
             } catch (TwitterException e) {
                 Log.e(TAG, "got exception on tweet", e);

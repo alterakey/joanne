@@ -1,20 +1,24 @@
 package com.gmail.altakey.joanne;
 
-import android.util.Log;
-import android.view.WindowManager;
-import android.widget.Toast;
+public class Maybe<T> {
+    private final T mTarget;
 
-import java.lang.reflect.Field;
+    private Maybe(T target) {
+        mTarget = target;
+    }
 
-public class Maybe {
-    public static <T> T get(T o) throws NoSuchValueException {
-        if (o != null) {
-            return o;
+    public static <T> Maybe<T> of(T o) {
+        return new Maybe<>(o);
+    }
+
+    public T get() throws Nothing {
+        if (mTarget != null) {
+            return mTarget;
         } else {
-            throw new NoSuchValueException();
+            throw new Nothing();
         }
     }
 
-    public static class NoSuchValueException extends Exception {
+    public static class Nothing extends Exception {
     }
 }

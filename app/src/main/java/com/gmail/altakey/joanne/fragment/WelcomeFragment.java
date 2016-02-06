@@ -16,86 +16,64 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.gmail.altakey.joanne.Attachable;
+import com.gmail.altakey.joanne.Maybe;
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.service.TweetBroadcastService;
 import com.gmail.altakey.joanne.service.TwitterAuthService;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import twitter4j.auth.AccessToken;
+
 public class WelcomeFragment extends Fragment {
-    private static final String ARG_SECTION_NUMBER = "section_number";
+    @Bind(R.id.auth)
+    TextView mProceed;
 
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(final Context c, final Intent intent) {
-            final String action = intent.getAction();
-            if (TwitterAuthService.ACTION_AUTH_SUCCESS.equals(action)) {
-                final Intent serviceLaunchIntent = new Intent(c, TweetBroadcastService.class);
-                serviceLaunchIntent.setAction(TweetBroadcastService.ACTION_START);
-                serviceLaunchIntent.putExtra(TweetBroadcastService.EXTRA_TOKEN, intent.getSerializableExtra(TwitterAuthService.EXTRA_TOKEN));
-                c.startService(serviceLaunchIntent);
-            } else if (TwitterAuthService.ACTION_AUTH_FAIL.equals(action)) {
-                hideProcessingDialog();
-                Toast.makeText(c, c.getString(R.string.auth_failure), Toast.LENGTH_LONG).show();
-            } else if (TweetBroadcastService.ACTION_STATE_CHANGED.equals(action)) {
-                hideProcessingDialog();
-                updateTitle(getView());
+    private Attachable mServiceCallback = new ServiceCallback();
 
-                final Activity activity = getActivity();
-                if (activity != null) {
-                    activity.finish();
-                }
-            }
-        }
-    };
-
-    public static WelcomeFragment newInstance(final int sectionNumber) {
-        WelcomeFragment fragment = new WelcomeFragment();
+    public static WelcomeFragment call() {
+        final WelcomeFragment f = new WelcomeFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-        fragment.setArguments(args);
-        return fragment;
+        f.setArguments(args);
+        return f;
     }
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.fragment_welcome, container, false);
-        final TextView proceed = (TextView)v.findViewById(R.id.auth);
-        updateTitle(v);
-        proceed.setOnClickListener(view -> {
-                final Context c = getActivity();
-                if (c != null) {
-                    showProcessingDialog();
-                    if (TweetBroadcastService.sActive) {
-                        TweetBroadcastService.requestQuit(c);
-                    } else {
-                        final Intent intent = new Intent(c, TwitterAuthService.class);
-                        intent.setAction(TwitterAuthService.ACTION_AUTH);
-                        c.startService(intent);
-                    }
+        ButterKnife.bind(this, v);
+
+        updateTitle();
+        mProceed.setOnClickListener(view -> {
+            try {
+                final Context c = Maybe.of(getActivity()).get();
+                showProcessingDialog();
+                if (TweetBroadcastService.sActive) {
+                    c.startService(TweetBroadcastService.quit());
+                } else {
+                    c.startService(TwitterAuthService.call());
                 }
+            } catch (Maybe.Nothing ignore) {
             }
-        );
+        });
         return v;
     }
 
-    private void updateTitle(final View root) {
-        final TextView proceed = (TextView)root.findViewById(R.id.auth);
+    private void updateTitle() {
         if (TweetBroadcastService.sActive) {
-            proceed.setText(getString(R.string.stop));
+            mProceed.setText(getString(R.string.stop));
         } else {
-            proceed.setText(getString(R.string.start));
+            mProceed.setText(getString(R.string.start));
         }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        final IntentFilter filter = new IntentFilter();
-        filter.addAction(TwitterAuthService.ACTION_AUTH_SUCCESS);
-        filter.addAction(TwitterAuthService.ACTION_AUTH_FAIL);
-        filter.addAction(TweetBroadcastService.ACTION_STATE_CHANGED);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mReceiver, filter);
+        mServiceCallback.attachTo(getActivity());
 
-        updateTitle(getView());
+        updateTitle();
 
         if (!TweetBroadcastService.sActive) {
             hideProcessingDialog();
@@ -105,24 +83,59 @@ public class WelcomeFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
+        mServiceCallback.detachFrom(getActivity());
     }
 
     private void showProcessingDialog() {
-        final FragmentActivity activity = getActivity();
-        if (activity != null) {
-            final DialogFragment dialog = ProcessingDialog.newInstance();
-            dialog.show(activity.getSupportFragmentManager(), ProcessingDialog.TAG);
+        try {
+            ProcessingDialog.call(Maybe.of(getFragmentManager()).get());
+        } catch (Maybe.Nothing ignore) {
         }
     }
 
     private void hideProcessingDialog() {
-        final FragmentActivity activity = getActivity();
-        if (activity != null) {
-            final DialogFragment dialog = (DialogFragment)activity.getSupportFragmentManager().findFragmentByTag(ProcessingDialog.TAG);
-            if (dialog != null) {
-                dialog.dismissAllowingStateLoss();
+        try {
+            Maybe.of(ProcessingDialog.on(Maybe.of(getFragmentManager()).get())).get().dismissAllowingStateLoss();
+        } catch (Maybe.Nothing ignore) {
+        }
+    }
+
+    private class ServiceCallback extends BroadcastReceiver implements Attachable {
+        @Override
+        public void attachTo(Context c) {
+            final IntentFilter filter = new IntentFilter();
+            filter.addAction(TwitterAuthService.ACTION_AUTH_SUCCESS);
+            filter.addAction(TwitterAuthService.ACTION_AUTH_FAIL);
+            filter.addAction(TweetBroadcastService.ACTION_STATE_CHANGED);
+            LocalBroadcastManager.getInstance(c).registerReceiver(this, filter);
+        }
+
+        @Override
+        public void detachFrom(Context c) {
+            LocalBroadcastManager.getInstance(c).unregisterReceiver(this);
+        }
+
+        @Override
+        public void onReceive(final Context c, final Intent intent) {
+            switch (intent.getAction()) {
+                case TwitterAuthService.ACTION_AUTH_SUCCESS:
+                    final AccessToken token = (AccessToken)intent.getSerializableExtra(TwitterAuthService.EXTRA_TOKEN);
+                    c.startService(TweetBroadcastService.call(token));
+                    break;
+                case TwitterAuthService.ACTION_AUTH_FAIL:
+                    hideProcessingDialog();
+                    Toast.makeText(c, c.getString(R.string.auth_failure), Toast.LENGTH_LONG).show();
+                    break;
+                case TweetBroadcastService.ACTION_STATE_CHANGED:
+                    hideProcessingDialog();
+                    updateTitle();
+                    try {
+                        Maybe.of(getActivity()).get().finish();
+                    } catch (Maybe.Nothing ignore) {
+                    }
+                    break;
             }
         }
     }
+
 }

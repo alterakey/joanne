@@ -7,13 +7,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,9 +19,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.gmail.altakey.joanne.Attachable;
 import com.gmail.altakey.joanne.R;
-import com.gmail.altakey.joanne.hack.Maybe;
-import com.gmail.altakey.joanne.service.TweetBroadcastService;
+import com.gmail.altakey.joanne.Maybe;
 import com.gmail.altakey.joanne.service.TweetService;
 import com.gmail.altakey.joanne.service.TwitterAuthService;
 
@@ -32,11 +29,16 @@ import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import twitter4j.auth.AccessToken;
 
 /**
  * Created by mean on 2015/12/03.
  */
 public class SendFragment extends Fragment {
+    private static final String TAG = SendFragment.class.getSimpleName();
+    private static final String KEY_SUBJECT = "text";
+    private static final String KEY_URI = "uri";
+
     @Bind(R.id.transmit)
     Button mTransmit;
 
@@ -46,9 +48,8 @@ public class SendFragment extends Fragment {
     @Bind(R.id.chars)
     TextView mCharsRemaining;
 
-    private static final String TAG = SendFragment.class.getSimpleName();
-    private static final String KEY_SUBJECT = "text";
-    private static final String KEY_URI = "uri";
+    private final Attachable mLauncher = new Launcher();
+
 
     public static SendFragment call(final Intent intent) {
         final SendFragment f = new SendFragment();
@@ -65,14 +66,12 @@ public class SendFragment extends Fragment {
         final View v = inflater.inflate(R.layout.fragment_send, container, false);
         ButterKnife.bind(this, v);
 
-        mText.addTextChangedListener(new TextChangedListener());
+        mText.addTextChangedListener(new TransmittionPolicy());
         mTransmit.setOnClickListener(view -> {
             final Context c = getActivity();
             if (c != null) {
-                final Intent intent = new Intent(c, TwitterAuthService.class);
-                intent.setAction(TwitterAuthService.ACTION_AUTH);
                 showProcessingDialog();
-                c.startService(intent);
+                c.startService(TwitterAuthService.call());
             }
         });
 
@@ -82,8 +81,8 @@ public class SendFragment extends Fragment {
 
     private String formatted(final Bundle args) {
         try {
-            return String.format(" / %s %s", Maybe.get(args.getString(KEY_SUBJECT)), args.getString(KEY_URI));
-        } catch (Maybe.NoSuchValueException e) {
+            return String.format(" / %s %s", Maybe.of(args.getString(KEY_SUBJECT)).get(), args.getString(KEY_URI));
+        } catch (Maybe.Nothing e) {
             return String.format(" / %s", args.getString(KEY_URI));
         }
     }
@@ -93,8 +92,7 @@ public class SendFragment extends Fragment {
         return Pattern.compile("https?://[^ ]+").matcher(body).replaceAll("https://t.co/XXXXXXXXXX").length();
     }
 
-
-    private class TextChangedListener implements TextWatcher {
+    private class TransmittionPolicy implements TextWatcher {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -113,17 +111,28 @@ public class SendFragment extends Fragment {
         }
     }
 
+    private class Launcher extends BroadcastReceiver implements Attachable {
+        @Override
+        public void attachTo(Context c) {
+            final IntentFilter filter = new IntentFilter();
+            filter.addAction(TwitterAuthService.ACTION_AUTH_SUCCESS);
+            filter.addAction(TwitterAuthService.ACTION_AUTH_FAIL);
+            filter.addAction(TweetService.ACTION_DONE);
+            LocalBroadcastManager.getInstance(c).registerReceiver(this, filter);
+        }
 
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void detachFrom(Context c) {
+            LocalBroadcastManager.getInstance(c).unregisterReceiver(this);
+        }
+
         @Override
         public void onReceive(final Context c, final Intent intent) {
             final String action = intent.getAction();
             if (TwitterAuthService.ACTION_AUTH_SUCCESS.equals(action)) {
-                final Intent serviceLaunchIntent = new Intent(c, TweetService.class);
-                serviceLaunchIntent.setAction(TweetService.ACTION_TWEET);
-                serviceLaunchIntent.putExtra(TweetService.EXTRA_STATUS, mText.getText().toString());
-                serviceLaunchIntent.putExtra(TweetService.EXTRA_TOKEN, intent.getSerializableExtra(TwitterAuthService.EXTRA_TOKEN));
-                c.startService(serviceLaunchIntent);
+                final String status = mText.getText().toString();
+                final AccessToken token = (AccessToken)intent.getSerializableExtra(TwitterAuthService.EXTRA_TOKEN);
+                c.startService(TweetService.call(status, token));
             } else if (TwitterAuthService.ACTION_AUTH_FAIL.equals(action)) {
                 hideProcessingDialog();
                 Toast.makeText(c, c.getString(R.string.auth_failure), Toast.LENGTH_LONG).show();
@@ -139,39 +148,31 @@ public class SendFragment extends Fragment {
                 }
             }
         }
-    };
+    }
 
     @Override
     public void onStart() {
         super.onStart();
-        final IntentFilter filter = new IntentFilter();
-        filter.addAction(TwitterAuthService.ACTION_AUTH_SUCCESS);
-        filter.addAction(TwitterAuthService.ACTION_AUTH_FAIL);
-        filter.addAction(TweetService.ACTION_DONE);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mReceiver, filter);
+        mLauncher.attachTo(getActivity());
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
+        mLauncher.detachFrom(getActivity());
     }
 
     private void showProcessingDialog() {
-        final FragmentActivity activity = getActivity();
-        if (activity != null) {
-            final DialogFragment dialog = ProcessingDialog.newInstance();
-            dialog.show(activity.getSupportFragmentManager(), ProcessingDialog.TAG);
+        try {
+            ProcessingDialog.call(Maybe.of(getFragmentManager()).get());
+        } catch (Maybe.Nothing ignore) {
         }
     }
 
     private void hideProcessingDialog() {
-        final FragmentActivity activity = getActivity();
-        if (activity != null) {
-            final DialogFragment dialog = (DialogFragment)activity.getSupportFragmentManager().findFragmentByTag(ProcessingDialog.TAG);
-            if (dialog != null) {
-                dialog.dismissAllowingStateLoss();
-            }
+        try {
+            Maybe.of(ProcessingDialog.on(Maybe.of(getFragmentManager()).get())).get().dismissAllowingStateLoss();
+        } catch (Maybe.Nothing ignore) {
         }
     }
 

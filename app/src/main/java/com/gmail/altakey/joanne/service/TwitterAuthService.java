@@ -23,50 +23,52 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.gmail.altakey.joanne.Joanne;
 import com.gmail.altakey.joanne.R;
-import com.gmail.altakey.joanne.util.IdListCoder;
 import com.gmail.altakey.joanne.util.UserRelation;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import twitter4j.IDs;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
- 
+import twitter4j.conf.ConfigurationBuilder;
+
 /* Please set your apps' callback URL to somewhere in your domain, like "http://(codename).apps.example.com/" */
 public class TwitterAuthService extends IntentService {
     private static final String TAG = "TAS";
     
-    public static final String ACTION_AUTH = "AUTH";
-    public static final String ACTION_AUTH_VERIFY = "AUTH_VERIFY";
+    private static final String ACTION_AUTH = "auth";
+    private static final String ACTION_AUTH_VERIFY = "AUTH_VERIFY";
     public static final String ACTION_AUTH_SUCCESS = "AUTH_SUCCESS";
     public static final String ACTION_AUTH_FAIL = "AUTH_FAIL";
  
-    public static final String EXTRA_VERIFIER = "verifier";
+    private static final String EXTRA_VERIFIER = "verifier";
     public static final String EXTRA_TOKEN = "token";
 
-    public static final String PREFERENCE = "com.gmail.altakey.joanne";
     public static final String KEY_TOKEN = "token";
     public static final String KEY_TOKEN_SECRET = "token_secret";
     public static final String KEY_SCREEN_NAME = "screen_name";
-    public static final String KEY_FRIENDS = "friends";
-    public static final String KEY_FOLLOWERS = "followers";
 
     public TwitterAuthService() {
         super(TwitterAuthService.class.getSimpleName());
     }
- 
+
+    public static Intent call() {
+        final Intent i = new Intent(ACTION_AUTH);
+        i.setClass(Joanne.getInstance(), TwitterAuthService.class);
+        return i;
+    }
+
     @Override
     public void onHandleIntent(Intent data) {
         final Twitter tw = TwitterFactory.getSingleton();
@@ -100,7 +102,7 @@ public class TwitterAuthService extends IntentService {
             }
         } else {
             Log.d(TAG, String.format("got access token: %s", accessToken.toString()));
-            updateRelations(this, accessToken);
+            UserRelation.update(this, accessToken);
 
             final Intent intent = new Intent(ACTION_AUTH_SUCCESS);
             intent.putExtra(EXTRA_TOKEN, accessToken);
@@ -113,7 +115,7 @@ public class TwitterAuthService extends IntentService {
             final AccessToken accessToken = tw.getOAuthAccessToken(verifier);
             Log.d(TAG, String.format("got access token: %s", accessToken.toString()));
             setAccessToken(accessToken);
-            updateRelations(this, accessToken);
+            UserRelation.update(this, accessToken);
 
             final Intent intent = new Intent(ACTION_AUTH_SUCCESS);
             intent.putExtra(EXTRA_TOKEN, accessToken);
@@ -125,9 +127,18 @@ public class TwitterAuthService extends IntentService {
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
     }
+
+    public static Twitter twitterWithAccessToken(final AccessToken token) {
+        final Context c = Joanne.getInstance();
+        final ConfigurationBuilder builder = new ConfigurationBuilder();
+        builder.setOAuthConsumerKey(c.getString(R.string.consumer_key));
+        builder.setOAuthConsumerSecret(c.getString(R.string.consumer_secret));
+
+        return new TwitterFactory(builder.build()).getInstance(token);
+    }
  
     public AccessToken getAccessToken() {
-        final SharedPreferences prefs = getSharedPreferences(PREFERENCE, MODE_PRIVATE);
+        final SharedPreferences prefs = getSharedPreferences();
         final String token = prefs.getString(KEY_TOKEN, null);
         final String tokenSecret = prefs.getString(KEY_TOKEN_SECRET, null);
         if (token != null && tokenSecret != null) {
@@ -138,7 +149,7 @@ public class TwitterAuthService extends IntentService {
     }
  
     public void setAccessToken(final AccessToken token) {
-        final SharedPreferences prefs = getSharedPreferences(PREFERENCE, MODE_PRIVATE);
+        final SharedPreferences prefs = getSharedPreferences();
         prefs
             .edit()
             .putString(KEY_TOKEN, token.getToken())
@@ -147,43 +158,8 @@ public class TwitterAuthService extends IntentService {
             .commit();
     }
 
-    public static void updateRelations(final Context context, final AccessToken token) {
-        final SharedPreferences prefs = context.getSharedPreferences(PREFERENCE, MODE_PRIVATE);
-        try {
-            final Twitter twitter = TwitterFactory.getSingleton();
-            twitter.setOAuthAccessToken(token);
-
-            final Set<Long> friends = new HashSet<Long>();
-            for (IDs ids = twitter.getFriendsIDs(-1); ; ids = twitter.getFriendsIDs(ids.getNextCursor())) {
-                for (Long id : ids.getIDs()) {
-                    friends.add(id);
-                }
-                if (!ids.hasNext()) {
-                    break;
-                }
-            }
-
-            final Set<Long> followers = new HashSet<Long>();
-            for (IDs ids = twitter.getFollowersIDs(-1); ; ids = twitter.getFollowersIDs(ids.getNextCursor())) {
-                for (Long id : ids.getIDs()) {
-                    followers.add(id);
-                }
-                if (!ids.hasNext()) {
-                    break;
-                }
-            }
-
-            prefs
-                .edit()
-                .putString(KEY_FRIENDS, new IdListCoder().encode(friends))
-                .putString(KEY_FOLLOWERS, new IdListCoder().encode(followers))
-                .commit();
-            UserRelation.notifyRelationsChanged();
-            Log.d(TAG, String.format("got %d friends", friends.size()));
-            Log.d(TAG, String.format("got %d followers", followers.size()));
-        } catch (TwitterException e) {
-            Log.w(TAG, "cannot get follower list", e);
-        }
+    private SharedPreferences getSharedPreferences() {
+        return PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     public static class AuthorizeActivity extends Activity {

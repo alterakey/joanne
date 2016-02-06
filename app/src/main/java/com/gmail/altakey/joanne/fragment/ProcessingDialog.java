@@ -3,13 +3,19 @@ package com.gmail.altakey.joanne.fragment;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 
 public class ProcessingDialog extends DialogFragment {
     public static final String TAG = "processing_dialog";
 
-    public static ProcessingDialog newInstance() {
-        return new ProcessingDialog();
+    public static void call(final FragmentManager fm) {
+        (new ProcessingDialog()).show(fm, TAG);
+    }
+
+    public static ProcessingDialog on(final FragmentManager fm) {
+        return (ProcessingDialog)fm.findFragmentByTag(TAG);
     }
 
     @Override

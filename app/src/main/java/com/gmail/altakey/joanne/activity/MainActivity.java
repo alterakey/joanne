@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         final Intent intent = getIntent();
 
         if (intent != null && ACTION_QUIT.equals(intent.getAction())) {
-            TweetBroadcastService.requestQuit(this);
+            startService(TweetBroadcastService.quit());
             finish();
             return;
         }
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(final int position) {
-            return WelcomeFragment.newInstance(1);
+            return WelcomeFragment.call();
         }
 
         @Override

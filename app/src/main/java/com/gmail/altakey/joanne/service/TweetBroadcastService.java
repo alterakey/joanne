@@ -20,8 +20,10 @@ import android.widget.Toast;
 
 import com.gmail.altakey.joanne.Attachable;
 import com.gmail.altakey.joanne.ConnectivityPolicy;
+import com.gmail.altakey.joanne.Joanne;
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.activity.MainActivity;
+import com.gmail.altakey.joanne.util.UserRelation;
 import com.gmail.altakey.joanne.view.Radio;
 import com.gmail.altakey.joanne.view.RadioProfile;
 import com.gmail.altakey.joanne.view.TweetDisplayBuilder;
@@ -38,19 +40,18 @@ import twitter4j.TwitterStreamFactory;
 import twitter4j.User;
 import twitter4j.UserList;
 import twitter4j.UserStreamListener;
-import twitter4j.FilterQuery;
 import twitter4j.auth.AccessToken;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class TweetBroadcastService extends Service {
     private static final String TAG = "TBS";
-    
-    public static final String ACTION_START = "ACTION_START";
-    public static final String ACTION_QUIT = "ACTION_QUIT";
+
+    private static final String ACTION_START = "ACTION_START";
+    private static final String ACTION_QUIT = "ACTION_QUIT";
     public static final String ACTION_STATE_CHANGED = "ACTION_STATE_CHANGED";
 
-    public static final String EXTRA_TOKEN = TwitterAuthService.EXTRA_TOKEN;
-    public static final String TWITTER_URL = "https://twitter.com/";
+    private static final String EXTRA_TOKEN = TwitterAuthService.EXTRA_TOKEN;
+    private static final String TWITTER_URL = "https://twitter.com/";
 
     public static boolean sActive = false;
     private static Handler sHandler = new Handler();
@@ -63,7 +64,7 @@ public class TweetBroadcastService extends Service {
     private static final String STATUS_READY = "ready";
     private static final String STATUS_FLAKY = "flaky";
 
-    private final IBinder mBinder = new Binder () {
+    private final IBinder mBinder = new Binder() {
         TweetBroadcastService getService() {
             return TweetBroadcastService.this;
         }
@@ -72,10 +73,17 @@ public class TweetBroadcastService extends Service {
     public static final int SERVICE_ID = 1;
     private final NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder(this);
 
-    public static void requestQuit(final Context context) {
-        final Intent stopIntent = new Intent(context, TweetBroadcastService.class);
-        stopIntent.setAction(ACTION_QUIT);
-        context.startService(stopIntent);
+    public static Intent call(final AccessToken token) {
+        final Intent i = new Intent(Joanne.getInstance(), TweetBroadcastService.class);
+        i.setAction(ACTION_START);
+        i.putExtra(EXTRA_TOKEN, token);
+        return i;
+    }
+
+    public static Intent quit() {
+        final Intent i = new Intent(Joanne.getInstance(), TweetBroadcastService.class);
+        i.setAction(ACTION_QUIT);
+        return i;
     }
 
     private String getServiceStatus() {
@@ -218,11 +226,23 @@ public class TweetBroadcastService extends Service {
                 switch (intent.getAction()) {
                     case ConnectivityPolicy.ACTION_DISCONNECT:
                         Log.d(TAG, "pausing connection");
-                        mStream.shutdown();
+                        new AsyncTask<Void,Void,Void>() {
+                            @Override
+                            protected Void doInBackground(Void... params) {
+                                mStream.shutdown();
+                                return null;
+                            }
+                        }.execute();
                         break;
                     case ConnectivityPolicy.ACTION_CONNECT:
                         Log.d(TAG, "resuming connection");
-                        mStream.user();
+                        new AsyncTask<Void,Void,Void>() {
+                            @Override
+                            protected Void doInBackground(Void... params) {
+                                mStream.user();
+                                return null;
+                            }
+                        }.execute();
                         present(mProfile.ready());
                         break;
                 }
@@ -274,7 +294,7 @@ public class TweetBroadcastService extends Service {
         public void onFollow(final User source, final User target) {
             present(mProfile.follow(source, target));
             try {
-                TwitterAuthService.updateRelations(TweetBroadcastService.this, mStream.getOAuthAccessToken());
+                UserRelation.update(TweetBroadcastService.this, mStream.getOAuthAccessToken());
             } catch (TwitterException e) {
                 Log.w(TAG, "cannot update friends list", e);
             }
