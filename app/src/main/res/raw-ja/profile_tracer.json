@@ -1,0 +1,25 @@
+{"team":{"name":"トレーサー", "screen_name":"Tracer"},
+    "color":
+    {"team":"ff00ff00",
+        "foe":"ffff0000",
+        "friend":"ff8888ff",
+        "neutral":"ffff8800"},
+    "actor":
+    {"me":{"color":"team","screen_name":"Tracer 1", "sign":"トレーサー1"},
+        "buddy":{"color":"team","screen_name":"Tracer 2", "sign":"トレーサー2"},
+        "awacs":{"color":"friend","screen_name":"AWACS", "sign":"AWACS"},
+        "friend":{"color":"friend","screen_name":"Friend"}
+    },
+    "transcript":
+    {"favorite":{"random":[[{"buddy":"おい、FAV来てるぞ！"}],[{"awacs":"FAV！FAV！"}],[{"buddy":"FAV来たぞ！よけろ"}]]},
+        "favoriting":{"random":[[{"awacs":"%(me_sign)s フォックス2"}],[{"awacs":"発射 発射"}],[{"awacs":"FAV 目標に命中"}]]},
+        "retweet":[{"buddy":"注意 拡散されているぞ"}],
+        "retweeting":{"random":[[{"awacs":"拡散 拡散"}],[{"awacs":"%(me_sign)s 拡散開始"}]]},
+        "deletion":[{"awacs":"消滅 消滅"}],
+        "following":[{"awacs":"レーダーロック"}],
+        "follow":[{"awacs":"注意 敵にロックされている"}],
+        "blocking":{"random":[[{"buddy":"撃墜確認 いいぞ"}],[{"awacs":"%(me_sign)s 敵機を撃墜"}]]},
+        "listed":[{"awacs":"注意 レーダー照射を受けている"}],
+        "unlisted":[{"awacs":"%(me_sign)s レーダーを回避"}],
+        "ready":{"random":[[{"awacs":"全機 こちら空中管制機AWACS\n当空域に侵入した敵航空機部隊を迎撃せよ"},{"awacs":"報酬ははずむ"},{"friend":"みてろよ"}],[{"awacs":"敵性航空機部隊の接近を確認 %(team_name)s隊 急ぎ迎撃に向かえ"}, {"buddy":"くそ 生き残るぞ"}],[{"buddy":"ケツの一刺しに気をつけろ"}]]},
+        "error":[{"buddy":"無線不調 無線不調"}]}}

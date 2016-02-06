@@ -23,7 +23,7 @@ import com.gmail.altakey.joanne.Attachable;
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.Maybe;
 import com.gmail.altakey.joanne.service.TweetService;
-import com.gmail.altakey.joanne.service.TwitterAuthService;
+import com.gmail.altakey.joanne.service.AuthService;
 
 import java.util.regex.Pattern;
 
@@ -71,7 +71,7 @@ public class SendFragment extends Fragment {
             final Context c = getActivity();
             if (c != null) {
                 showProcessingDialog();
-                c.startService(TwitterAuthService.call());
+                c.startService(AuthService.call());
             }
         });
 
@@ -115,8 +115,8 @@ public class SendFragment extends Fragment {
         @Override
         public void attachTo(Context c) {
             final IntentFilter filter = new IntentFilter();
-            filter.addAction(TwitterAuthService.ACTION_AUTH_SUCCESS);
-            filter.addAction(TwitterAuthService.ACTION_AUTH_FAIL);
+            filter.addAction(AuthService.ACTION_AUTH_SUCCESS);
+            filter.addAction(AuthService.ACTION_AUTH_FAIL);
             filter.addAction(TweetService.ACTION_DONE);
             LocalBroadcastManager.getInstance(c).registerReceiver(this, filter);
         }
@@ -129,11 +129,11 @@ public class SendFragment extends Fragment {
         @Override
         public void onReceive(final Context c, final Intent intent) {
             final String action = intent.getAction();
-            if (TwitterAuthService.ACTION_AUTH_SUCCESS.equals(action)) {
+            if (AuthService.ACTION_AUTH_SUCCESS.equals(action)) {
                 final String status = mText.getText().toString();
-                final AccessToken token = (AccessToken)intent.getSerializableExtra(TwitterAuthService.EXTRA_TOKEN);
+                final AccessToken token = (AccessToken)intent.getSerializableExtra(AuthService.EXTRA_TOKEN);
                 c.startService(TweetService.call(status, token));
-            } else if (TwitterAuthService.ACTION_AUTH_FAIL.equals(action)) {
+            } else if (AuthService.ACTION_AUTH_FAIL.equals(action)) {
                 hideProcessingDialog();
                 Toast.makeText(c, c.getString(R.string.auth_failure), Toast.LENGTH_LONG).show();
             } else if (TweetService.ACTION_DONE.equals(action)) {

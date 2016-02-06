@@ -43,14 +43,14 @@ import twitter4j.UserStreamListener;
 import twitter4j.auth.AccessToken;
 import twitter4j.conf.ConfigurationBuilder;
 
-public class TweetBroadcastService extends Service {
+public class StreamService extends Service {
     private static final String TAG = "TBS";
 
     private static final String ACTION_START = "ACTION_START";
     private static final String ACTION_QUIT = "ACTION_QUIT";
     public static final String ACTION_STATE_CHANGED = "ACTION_STATE_CHANGED";
 
-    private static final String EXTRA_TOKEN = TwitterAuthService.EXTRA_TOKEN;
+    private static final String EXTRA_TOKEN = AuthService.EXTRA_TOKEN;
     private static final String TWITTER_URL = "https://twitter.com/";
 
     public static boolean sActive = false;
@@ -65,8 +65,8 @@ public class TweetBroadcastService extends Service {
     private static final String STATUS_FLAKY = "flaky";
 
     private final IBinder mBinder = new Binder() {
-        TweetBroadcastService getService() {
-            return TweetBroadcastService.this;
+        StreamService getService() {
+            return StreamService.this;
         }
     };
 
@@ -74,14 +74,14 @@ public class TweetBroadcastService extends Service {
     private final NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder(this);
 
     public static Intent call(final AccessToken token) {
-        final Intent i = new Intent(Joanne.getInstance(), TweetBroadcastService.class);
+        final Intent i = new Intent(Joanne.getInstance(), StreamService.class);
         i.setAction(ACTION_START);
         i.putExtra(EXTRA_TOKEN, token);
         return i;
     }
 
     public static Intent quit() {
-        final Intent i = new Intent(Joanne.getInstance(), TweetBroadcastService.class);
+        final Intent i = new Intent(Joanne.getInstance(), StreamService.class);
         i.setAction(ACTION_QUIT);
         return i;
     }
@@ -153,7 +153,7 @@ public class TweetBroadcastService extends Service {
                     mProfile = null;
                     mStream = null;
                     Toast.makeText(getApplicationContext(), getString(R.string.terminating), Toast.LENGTH_SHORT).show();
-                    LocalBroadcastManager.getInstance(TweetBroadcastService.this).sendBroadcast(new Intent(ACTION_STATE_CHANGED));
+                    LocalBroadcastManager.getInstance(StreamService.this).sendBroadcast(new Intent(ACTION_STATE_CHANGED));
                     stopSelf(startId);
                 }
             }.execute();
@@ -178,31 +178,33 @@ public class TweetBroadcastService extends Service {
         return START_STICKY;
     }
 
-    private void present(final Radio radio) {
-        if (radio != null) {
-            final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-            if (pm.isScreenOn()) {
-                sHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        new TweetDisplayBuilder(getApplicationContext(), radio).build().show();
-                    }
-                });
-            }
+    private void present(final Iterable<Radio> radios) {
+        for (Radio radio: radios) {
+            if (radio != null) {
+                final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                if (pm.isScreenOn()) {
+                    sHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            new TweetDisplayBuilder(getApplicationContext(), radio).build().show();
+                        }
+                    });
+                }
 
-            if (radio.isError()) {
-                mCurrentStatus = STATUS_FLAKY;
-            } else {
-                mCurrentStatus = STATUS_READY;
-            }
+                if (radio.isError()) {
+                    mCurrentStatus = STATUS_FLAKY;
+                } else {
+                    mCurrentStatus = STATUS_READY;
+                }
 
-            final NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-            nm.notify(SERVICE_ID, mNotificationBuilder
-                    .setContentTitle(getServiceStatus())
-                    .setContentText(radio.getRawText())
-                    .setContentInfo(radio.getScreenName())
-                    .setWhen(new Date().getTime())
-                    .build());
+                final NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                nm.notify(SERVICE_ID, mNotificationBuilder
+                        .setContentTitle(getServiceStatus())
+                        .setContentText(radio.getRawText())
+                        .setContentInfo(radio.getScreenName())
+                        .setWhen(new Date().getTime())
+                        .build());
+            }
         }
     }
 
@@ -294,7 +296,7 @@ public class TweetBroadcastService extends Service {
         public void onFollow(final User source, final User target) {
             present(mProfile.follow(source, target));
             try {
-                UserRelation.update(TweetBroadcastService.this, mStream.getOAuthAccessToken());
+                UserRelation.update(StreamService.this, mStream.getOAuthAccessToken());
             } catch (TwitterException e) {
                 Log.w(TAG, "cannot update friends list", e);
             }

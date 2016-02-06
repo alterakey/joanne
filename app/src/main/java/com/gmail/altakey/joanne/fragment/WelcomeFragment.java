@@ -1,14 +1,11 @@
 package com.gmail.altakey.joanne.fragment;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,8 +16,8 @@ import android.widget.Toast;
 import com.gmail.altakey.joanne.Attachable;
 import com.gmail.altakey.joanne.Maybe;
 import com.gmail.altakey.joanne.R;
-import com.gmail.altakey.joanne.service.TweetBroadcastService;
-import com.gmail.altakey.joanne.service.TwitterAuthService;
+import com.gmail.altakey.joanne.service.StreamService;
+import com.gmail.altakey.joanne.service.AuthService;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -49,10 +46,10 @@ public class WelcomeFragment extends Fragment {
             try {
                 final Context c = Maybe.of(getActivity()).get();
                 showProcessingDialog();
-                if (TweetBroadcastService.sActive) {
-                    c.startService(TweetBroadcastService.quit());
+                if (StreamService.sActive) {
+                    c.startService(StreamService.quit());
                 } else {
-                    c.startService(TwitterAuthService.call());
+                    c.startService(AuthService.call());
                 }
             } catch (Maybe.Nothing ignore) {
             }
@@ -61,7 +58,7 @@ public class WelcomeFragment extends Fragment {
     }
 
     private void updateTitle() {
-        if (TweetBroadcastService.sActive) {
+        if (StreamService.sActive) {
             mProceed.setText(getString(R.string.stop));
         } else {
             mProceed.setText(getString(R.string.start));
@@ -75,7 +72,7 @@ public class WelcomeFragment extends Fragment {
 
         updateTitle();
 
-        if (!TweetBroadcastService.sActive) {
+        if (!StreamService.sActive) {
             hideProcessingDialog();
         }
     }
@@ -104,9 +101,9 @@ public class WelcomeFragment extends Fragment {
         @Override
         public void attachTo(Context c) {
             final IntentFilter filter = new IntentFilter();
-            filter.addAction(TwitterAuthService.ACTION_AUTH_SUCCESS);
-            filter.addAction(TwitterAuthService.ACTION_AUTH_FAIL);
-            filter.addAction(TweetBroadcastService.ACTION_STATE_CHANGED);
+            filter.addAction(AuthService.ACTION_AUTH_SUCCESS);
+            filter.addAction(AuthService.ACTION_AUTH_FAIL);
+            filter.addAction(StreamService.ACTION_STATE_CHANGED);
             LocalBroadcastManager.getInstance(c).registerReceiver(this, filter);
         }
 
@@ -118,15 +115,15 @@ public class WelcomeFragment extends Fragment {
         @Override
         public void onReceive(final Context c, final Intent intent) {
             switch (intent.getAction()) {
-                case TwitterAuthService.ACTION_AUTH_SUCCESS:
-                    final AccessToken token = (AccessToken)intent.getSerializableExtra(TwitterAuthService.EXTRA_TOKEN);
-                    c.startService(TweetBroadcastService.call(token));
+                case AuthService.ACTION_AUTH_SUCCESS:
+                    final AccessToken token = (AccessToken)intent.getSerializableExtra(AuthService.EXTRA_TOKEN);
+                    c.startService(StreamService.call(token));
                     break;
-                case TwitterAuthService.ACTION_AUTH_FAIL:
+                case AuthService.ACTION_AUTH_FAIL:
                     hideProcessingDialog();
                     Toast.makeText(c, c.getString(R.string.auth_failure), Toast.LENGTH_LONG).show();
                     break;
-                case TweetBroadcastService.ACTION_STATE_CHANGED:
+                case StreamService.ACTION_STATE_CHANGED:
                     hideProcessingDialog();
                     updateTitle();
                     try {

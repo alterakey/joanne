@@ -1,0 +1,23 @@
+{"team":{"name":"Tracer", "screen_name":"Tracer"},
+    "color":
+    {"team":"ff00ff00",
+        "foe":"ffff0000",
+        "friend":"ff8888ff",
+        "neutral":"ffff8800"},
+    "actor":
+    {"me":{"color":"team","screen_name":"Tracer 1", "sign":"Tracer 1"},
+        "buddy":{"color":"team","screen_name":"Tracer 2", "sign":"Tracer 2"},
+        "awacs":{"color":"friend","screen_name":"AWACS", "sign":"AWACS"}},
+    "transcript":
+    {"favorite":[{"buddy":"Warning, incoming FAV"}],
+        "favoriting":[{"awacs":"%(me_screen_name)s, FOX 2"}],
+        "retweet":[{"buddy":"Warning, an enemy is RT-ing you"}],
+        "retweeting":[{"awacs":"Retweet, retweet"}],
+        "deletion":[{"awacs":"Target vanished"}],
+        "following":[{"awacs":"Locked on the target"}],
+        "follow":[{"awacs":"Warning, an enemy has locked you on the radar"}],
+        "blocking":[{"buddy":"Good kill"}],
+        "listed":[{"buddy":"Warning, an enemy has you on the radar"}],
+        "unlisted":[{"buddy":"%(me_screen_name)s, evaving enemy radar"}],
+        "ready":[{"awacs":"All aircraft, report your status"}],
+        "error":[{"buddy":"Radio failure"}]}}

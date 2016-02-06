@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.gmail.altakey.joanne.service.TwitterAuthService;
+import com.gmail.altakey.joanne.service.AuthService;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +13,6 @@ import java.util.Set;
 import twitter4j.IDs;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
 import twitter4j.TwitterStream;
 import twitter4j.User;
 import twitter4j.auth.AccessToken;
@@ -121,7 +120,7 @@ public class UserRelation {
     public static void update(final Context c, final AccessToken token) {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
         try {
-            final Twitter twitter = TwitterAuthService.twitterWithAccessToken(token);
+            final Twitter twitter = AuthService.twitterWithAccessToken(token);
 
             final Set<Long> friends = new HashSet<>();
             for (IDs ids = twitter.getFriendsIDs(-1); ; ids = twitter.getFriendsIDs(ids.getNextCursor())) {

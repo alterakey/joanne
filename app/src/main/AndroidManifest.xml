@@ -34,11 +34,11 @@
                 <data android:mimeType="text/plain"/>
             </intent-filter>
         </activity>
-        <activity android:name="com.gmail.altakey.joanne.service.TwitterAuthService$AuthorizeActivity" />
+        <activity android:name=".service.AuthService$AuthorizeActivity" />
 
         <service android:name="com.gmail.altakey.joanne.service.TweetService" />
-        <service android:name="com.gmail.altakey.joanne.service.TwitterAuthService" />
-        <service android:name="com.gmail.altakey.joanne.service.TweetBroadcastService" />
+        <service android:name=".service.AuthService" />
+        <service android:name=".service.StreamService" />
 
         <activity
             android:name="com.gmail.altakey.joanne.activity.SettingsActivity"

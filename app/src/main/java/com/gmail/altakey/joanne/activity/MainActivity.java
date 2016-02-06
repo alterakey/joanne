@@ -6,14 +6,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.gmail.altakey.joanne.R;
 import com.gmail.altakey.joanne.fragment.WelcomeFragment;
-import com.gmail.altakey.joanne.service.TweetBroadcastService;
+import com.gmail.altakey.joanne.service.StreamService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         final Intent intent = getIntent();
 
         if (intent != null && ACTION_QUIT.equals(intent.getAction())) {
-            startService(TweetBroadcastService.quit());
+            startService(StreamService.quit());
             finish();
             return;
         }

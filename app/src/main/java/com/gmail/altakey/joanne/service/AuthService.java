@@ -44,7 +44,7 @@ import twitter4j.auth.RequestToken;
 import twitter4j.conf.ConfigurationBuilder;
 
 /* Please set your apps' callback URL to somewhere in your domain, like "http://(codename).apps.example.com/" */
-public class TwitterAuthService extends IntentService {
+public class AuthService extends IntentService {
     private static final String TAG = "TAS";
     
     private static final String ACTION_AUTH = "auth";
@@ -59,13 +59,13 @@ public class TwitterAuthService extends IntentService {
     public static final String KEY_TOKEN_SECRET = "token_secret";
     public static final String KEY_SCREEN_NAME = "screen_name";
 
-    public TwitterAuthService() {
-        super(TwitterAuthService.class.getSimpleName());
+    public AuthService() {
+        super(AuthService.class.getSimpleName());
     }
 
     public static Intent call() {
         final Intent i = new Intent(ACTION_AUTH);
-        i.setClass(Joanne.getInstance(), TwitterAuthService.class);
+        i.setClass(Joanne.getInstance(), AuthService.class);
         return i;
     }
 
@@ -186,9 +186,9 @@ public class TwitterAuthService extends IntentService {
                     Log.d(TAG, String.format("url: %s", url));
                     if (m.find()) {
                         final String verifier = m.group(1);
-                        final Intent verifyIntent = new Intent(AuthorizeActivity.this, TwitterAuthService.class);
-                        verifyIntent.setAction(TwitterAuthService.ACTION_AUTH_VERIFY);
-                        verifyIntent.putExtra(TwitterAuthService.EXTRA_VERIFIER, verifier);
+                        final Intent verifyIntent = new Intent(AuthorizeActivity.this, AuthService.class);
+                        verifyIntent.setAction(AuthService.ACTION_AUTH_VERIFY);
+                        verifyIntent.putExtra(AuthService.EXTRA_VERIFIER, verifier);
                         startService(verifyIntent);
                         finish();
                         return true;
