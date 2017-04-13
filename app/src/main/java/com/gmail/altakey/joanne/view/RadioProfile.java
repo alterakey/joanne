@@ -28,7 +28,7 @@ import twitter4j.TwitterStream;
 import twitter4j.User;
 
 public class RadioProfile {
-    private final static String COLOR_BUDDY = "buddy";
+    private final static String COLOR_TEAM = "team";
     private final static String COLOR_FOE = "foe";
     private final static String COLOR_FRIEND = "friend";
     private final static String COLOR_NEUTRAL = "neutral";
@@ -296,7 +296,7 @@ public class RadioProfile {
 
     private String getScreenNameColorOf(final User user) {
         if (mRelation.isMe(user)) {
-            return COLOR_BUDDY;
+            return COLOR_TEAM;
         } else if (mRelation.isMutualFollower(user)) {
             return COLOR_FRIEND;
         } else {
