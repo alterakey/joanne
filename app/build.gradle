@@ -6,8 +6,8 @@ repositories {
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 24
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         applicationId 'com.gmail.altakey.joanne'
@@ -33,7 +33,7 @@ android {
     }
 
     lintOptions {
-        disable 'InvalidPackage'
+        disable 'InvalidPackage', 'MissingTranslation'
     }
 }
 
